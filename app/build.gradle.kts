@@ -2,6 +2,14 @@ plugins {
     id("com.android.application")
 }
 
+// Secrets come from the gitignored root .env (see .env.example), falling back to real env vars for CI.
+val dotenv = rootProject.file(".env").takeIf { it.exists() }?.readLines()
+    ?.filter { it.isNotBlank() && !it.trimStart().startsWith("#") && "=" in it }
+    ?.associate { it.substringBefore("=").trim() to it.substringAfter("=").trim() }
+    .orEmpty()
+fun env(name: String): String = dotenv[name] ?: System.getenv(name)
+    ?: throw GradleException("Missing $name - copy .env.example to .env and fill it in")
+
 android {
     namespace = "com.example.netballapp"
     compileSdk = 34
@@ -14,6 +22,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "SUPABASE_URL", "\"${env("SUPABASE_URL")}\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"${env("SUPABASE_ANON_KEY")}\"")
     }
 
     buildTypes {
@@ -31,6 +42,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 

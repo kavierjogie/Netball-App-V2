@@ -1,5 +1,7 @@
 package com.example.netballapp.api;
 
+import com.example.netballapp.BuildConfig;
+
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import retrofit2.Retrofit;
@@ -7,8 +9,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
     private static Retrofit retrofit = null;
-    private static String baseUrl = "https://ndgsgfhlqddnwtaqxken.supabase.co";
-    private static String apiKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5kZ3NnZmhscWRkbnd0YXF4a2VuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEyMDY4ODMsImV4cCI6MjA2Njc4Mjg4M30.05iDZzTd7u8xCjXIYniCHt7STPzQavwJLd0G638H1Sc";
+    private static final String baseUrl = BuildConfig.SUPABASE_URL;
+    private static final String apiKey = BuildConfig.SUPABASE_ANON_KEY;
 
     public static Retrofit getClient() {
         if (retrofit == null) {
