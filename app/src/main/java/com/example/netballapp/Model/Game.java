@@ -60,6 +60,13 @@ public class Game {
         this.game_CurrentCentrePassTeam = game_CurrentCentrePassTeam;
         this.game_CoachNote = game_CoachNote;
     }
+    public Game(String game_Name, String game_OppositionName, String game_Venue, String game_Date, String game_Type) {
+        this.game_Name = game_Name;
+        this.game_OppositionName = game_OppositionName;
+        this.game_Venue = game_Venue;
+        this.game_Date = game_Date;
+        this.game_Type = game_Type;
+    }
 
     public Game() {
     }
@@ -80,4 +87,7 @@ public class Game {
         return game_ID;
     }
 
+    public String getGame_Type() {
+        return game_Type;
+    }
 }

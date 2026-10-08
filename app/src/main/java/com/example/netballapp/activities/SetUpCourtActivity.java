@@ -43,7 +43,6 @@ public class SetUpCourtActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_set_up_court);
 
-        // Retrieves coach ID from SharedPreferences
         currentGameId = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
                 .getLong("game_ID", -1);
 
@@ -62,13 +61,11 @@ public class SetUpCourtActivity extends AppCompatActivity
         posGK = findViewById(R.id.posGK);
         posWD=findViewById(R.id.posWD);
 
-        // Setup RecyclerView
         lstPlayers = findViewById(R.id.lstPlayers);
         lstPlayers.setLayoutManager(new LinearLayoutManager(this));
 
         api = RetrofitClient.getClient().create(SuperbaseAPI.class);
 
-        // Set position click listeners
         posGA.setOnClickListener(v -> assignPlayerToPosition("GA"));
         posGS.setOnClickListener(v -> assignPlayerToPosition("GS"));
         posC.setOnClickListener(v -> assignPlayerToPosition("C"));
@@ -77,7 +74,6 @@ public class SetUpCourtActivity extends AppCompatActivity
         posGD.setOnClickListener(v -> assignPlayerToPosition("GD"));
         posGK.setOnClickListener(v -> assignPlayerToPosition("GK"));
 
-        // Fetch players
         loadPlayersFromSupabase();
         loadPlayers(currentGameId);
     }
@@ -89,9 +85,7 @@ public class SetUpCourtActivity extends AppCompatActivity
         }
 
         if (!position.equals(selectedPlayer.getPlayer_position())) {
-            Toast.makeText(this, selectedPlayer.getPlayer_FirstName() +
-                            " can only play " + selectedPlayer.getPlayer_position(),
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, selectedPlayer.getPlayer_FirstName() + " can only play " + selectedPlayer.getPlayer_position(), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -102,9 +96,8 @@ public class SetUpCourtActivity extends AppCompatActivity
             public void onResponse(Call<List<Court>> call, Response<List<Court>> response) {
                 if (response.isSuccessful() && response.body() != null) {
 
-                    String playerDisplay = getInitials(selectedPlayer) + "\n(" + position + ")"; // two-line format
+                    String playerDisplay = getInitials(selectedPlayer) + "\n(" + position + ")";
 
-                    // Only update the correct TextView
                     switch (position) {
                         case "GA": posGA.setText(playerDisplay); break;
                         case "GS": posGS.setText(playerDisplay); break;
@@ -115,12 +108,11 @@ public class SetUpCourtActivity extends AppCompatActivity
                         case "GK": posGK.setText(playerDisplay); break;
                     }
 
-                    Toast.makeText(SetUpCourtActivity.this, "Player assigned to " + position, Toast.LENGTH_SHORT).show();
                     adapter.removePlayer(selectedPlayer);
                     selectedPlayer = null;
 
                 } else {
-                    Toast.makeText(SetUpCourtActivity.this, "Assignment failed: " + response.code(), Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(SetUpCourtActivity.this, "Assignment failed: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -131,8 +123,6 @@ public class SetUpCourtActivity extends AppCompatActivity
         });
     }
 
-
-    // Helper method
     private String getInitials(Player player) {
         String firstInitial = player.getPlayer_FirstName().substring(0, 1).toUpperCase();
         String lastInitial = player.getPlayer_Surname().substring(0, 1).toUpperCase();
@@ -140,7 +130,6 @@ public class SetUpCourtActivity extends AppCompatActivity
     }
 
     private void loadPlayersFromSupabase() {
-        // Get coach ID from SharedPreferences
         long coachId = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
                 .getLong("coach_ID", -1);
         if (coachId == -1) {
@@ -156,14 +145,12 @@ public class SetUpCourtActivity extends AppCompatActivity
                 if (response.isSuccessful() && response.body() != null) {
                     List<Player> playerList = response.body();
                     adapter = new PlayerAdapterCourt(playerList, SetUpCourtActivity.this, player -> {selectedPlayer = player;
-                        Toast.makeText(SetUpCourtActivity.this, "Selected: " + player.getPlayer_FirstName(), Toast.LENGTH_SHORT).show();
                     });
                     lstPlayers.setAdapter(adapter);
                 } else {
                     Toast.makeText(SetUpCourtActivity.this, "Failed to load players", Toast.LENGTH_SHORT).show();
                 }
             }
-
             @Override
             public void onFailure(Call<List<Player>> call, Throwable t) {
                 Toast.makeText(SetUpCourtActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_LONG).show();
@@ -199,7 +186,6 @@ public class SetUpCourtActivity extends AppCompatActivity
                         Long playerId = court.getPlayer_id();
                         String pos = court.getCourt_position_field();
 
-                        // Now fetch player details by ID
                         loadPlayerDetails(playerId, pos);
                     }
                 }
@@ -227,7 +213,6 @@ public class SetUpCourtActivity extends AppCompatActivity
                     Player player = players.get(0);
                     String playerName = player.getPlayer_FirstName() + " " + player.getPlayer_Surname();
 
-                    // Match "posGS", "posGA", etc. in layout
                     int resId = getResources().getIdentifier("pos" + pos, "id", getPackageName());
                     TextView posText = findViewById(resId);
                     if (posText != null) {
@@ -261,5 +246,4 @@ public class SetUpCourtActivity extends AppCompatActivity
         startActivity(intent);
         finish();
     }
-
 }

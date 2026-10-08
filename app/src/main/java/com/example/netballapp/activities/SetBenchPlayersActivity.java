@@ -32,10 +32,7 @@ public class SetBenchPlayersActivity extends AppCompatActivity {
     private PlayerAdapterCourt adapter;
     private SuperbaseAPI api;
     private Player selectedPlayer;
-
-    // Bench containers
     private LinearLayout attackContainer, defenceContainer, centreContainer;
-    // Bench counters
     private int attackBenchCount = 0;
     private int defenceBenchCount = 0;
     private int centreBenchCount = 0;
@@ -48,7 +45,6 @@ public class SetBenchPlayersActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_set_bench_players);
 
-
         lstPlayers = findViewById(R.id.lstPlayers);
         attackContainer = findViewById(R.id.attackContainer);
         defenceContainer = findViewById(R.id.defenceContainer);
@@ -58,7 +54,6 @@ public class SetBenchPlayersActivity extends AppCompatActivity {
 
         api = RetrofitClient.getClient().create(SuperbaseAPI.class);
 
-        // Get current game ID
         currentGameId = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
                 .getLong("game_ID", -1);
         if (currentGameId == -1) {
@@ -70,12 +65,9 @@ public class SetBenchPlayersActivity extends AppCompatActivity {
         List<Player> playerList = (List<Player>) getIntent().getSerializableExtra("players_list");
         adapter = new PlayerAdapterCourt(playerList, this, player -> {
             selectedPlayer = player;
-            Toast.makeText(this, "Selected: " + player.getPlayer_FirstName(), Toast.LENGTH_SHORT).show();
         });
         lstPlayers.setAdapter(adapter);
 
-
-        // Set click listeners with section names
         attackContainer.setOnClickListener(v -> assignPlayerToBench(attackContainer, "ATTACK"));
         defenceContainer.setOnClickListener(v -> assignPlayerToBench(defenceContainer, "DEFENCE"));
         centreContainer.setOnClickListener(v -> assignPlayerToBench(centreContainer, "CENTRE"));
@@ -87,13 +79,31 @@ public class SetBenchPlayersActivity extends AppCompatActivity {
             return;
         }
 
-        // Check global bench limit
+        String position = selectedPlayer.getPlayer_position();
+        boolean valid = false;
+
+        switch (section) {
+            case "ATTACK":
+                valid = position.equals("GS") || position.equals("GA") || position.equals("WA");
+                break;
+            case "CENTRE":
+                valid = position.equals("C");
+                break;
+            case "DEFENCE":
+                valid = position.equals("WD") || position.equals("GD") || position.equals("GK");
+                break;
+        }
+
+        if (!valid) {
+            Toast.makeText(this, "This player cannot be assigned to " + section + " bench!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (totalBenchCount >= MAX_TOTAL_BENCH) {
             Toast.makeText(this, "All bench positions are full!", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // Increment section and global counters
         switch (section) {
             case "ATTACK": attackBenchCount++; break;
             case "DEFENCE": defenceBenchCount++; break;
@@ -101,11 +111,9 @@ public class SetBenchPlayersActivity extends AppCompatActivity {
         }
         totalBenchCount++;
 
-        // Create bench position string
         String benchPosition = section + "_" + (section.equals("ATTACK") ? attackBenchCount :
                 section.equals("DEFENCE") ? defenceBenchCount : centreBenchCount);
 
-        // Create Court object to save in database
         Court assignment = new Court(benchPosition, currentGameId, selectedPlayer.getPlayer_ID());
 
         Call<List<Court>> call = api.assignPlayerToCourt(assignment);
@@ -113,7 +121,6 @@ public class SetBenchPlayersActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<List<Court>> call, Response<List<Court>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    // Add player to UI
                     TextView playerView = new TextView(SetBenchPlayersActivity.this);
                     playerView.setText(selectedPlayer.getPlayer_FirstName() + " " + selectedPlayer.getPlayer_Surname());
                     playerView.setTextSize(16);
@@ -122,14 +129,10 @@ public class SetBenchPlayersActivity extends AppCompatActivity {
                     playerView.setTextColor(Color.BLACK);
                     container.addView(playerView);
 
-                    Toast.makeText(SetBenchPlayersActivity.this,
-                            "Player assigned to " + benchPosition, Toast.LENGTH_SHORT).show();
-
                     adapter.removePlayer(selectedPlayer);
                     selectedPlayer = null;
                 } else {
                     Toast.makeText(SetBenchPlayersActivity.this, "Assignment failed: " + response.code(), Toast.LENGTH_SHORT).show();
-                    // Roll back counters if failed
                     switch (section) {
                         case "ATTACK": attackBenchCount--; break;
                         case "DEFENCE": defenceBenchCount--; break;
@@ -142,7 +145,6 @@ public class SetBenchPlayersActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<List<Court>> call, Throwable t) {
                 Toast.makeText(SetBenchPlayersActivity.this, "API error: " + t.getMessage(), Toast.LENGTH_LONG).show();
-                // Roll back counters if failed
                 switch (section) {
                     case "ATTACK": attackBenchCount--; break;
                     case "DEFENCE": defenceBenchCount--; break;
@@ -152,7 +154,6 @@ public class SetBenchPlayersActivity extends AppCompatActivity {
             }
         });
     }
-
 
     public void onBackClicked(android.view.View view) {
         Intent intent = new Intent(SetBenchPlayersActivity.this, SetUpCourtActivity.class);

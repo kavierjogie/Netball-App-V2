@@ -28,9 +28,6 @@ public class Coach {
         return coach_firstname;
     }
 
-    public void setCoach_firstname(String coach_firstname) {
-        this.coach_firstname = coach_firstname;
-    }
 
     public String getCoach_surname() {
         return coach_surname;

@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
-    <!-- Top Bar -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/topBar"
         android:layout_width="0dp"
@@ -18,7 +17,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Scrollable content -->
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollView"
         android:layout_width="0dp"
@@ -36,7 +34,6 @@
             android:padding="24dp"
             android:gravity="center_horizontal">
 
-            <!-- Logo -->
             <LinearLayout
                 android:layout_width="120dp"
                 android:layout_height="120dp"
@@ -53,7 +50,6 @@
                     android:textSize="18sp"/>
             </LinearLayout>
 
-            <!-- App Title -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -63,7 +59,6 @@
                 android:textSize="18sp"
                 android:layout_marginTop="16dp"/>
 
-            <!-- Username Input -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -73,11 +68,9 @@
                     android:id="@+id/username"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Username"
-                    android:text="Kavier" />
+                    android:hint="Username" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Password Input -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -88,11 +81,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Password"
-                    android:inputType="textPassword"
-                    android:text="1234" />
+                    android:inputType="textPassword" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Login Button -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/login_button"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -104,8 +95,6 @@
                 android:backgroundTint="#033E8C"
                 android:onClick="onLoginClicked"/>
 
-
-            <!-- Register Link -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

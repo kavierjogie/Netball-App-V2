@@ -8,7 +8,6 @@
     android:background="@android:color/darker_gray"
     tools:context=".activities.GameScreenActivity">
 
-    <!-- ====== TOP BAR ====== -->
     <LinearLayout
         android:id="@+id/topBar"
         android:layout_width="0dp"
@@ -32,7 +31,6 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- ====== MAIN CONTENT ====== -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/contentContainer"
         android:layout_width="0dp"
@@ -42,7 +40,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- COURT -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/court"
             android:layout_width="0dp"
@@ -56,7 +53,6 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_percent="0.6">
 
-            <!-- Centre Circle -->
             <View
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -68,7 +64,6 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintWidth_percent="0.2" />
 
-            <!-- Goal Circles -->
             <View
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -89,7 +84,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintWidth_percent="0.4" />
 
-            <!-- Player Positions -->
             <TextView
                 android:id="@+id/posGS"
                 style="@style/PlayerPosition"
@@ -168,9 +162,6 @@
                 app:layout_constraintTop_toTopOf="parent"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!-- SIDE PANEL: Scores + Bench + Notes -->
-        <!-- Improved Scoreboard -->
-        <!-- SIDE PANEL: Scores + Timer + Buttons + Notes -->
         <LinearLayout
             android:id="@+id/sidePanel"
             android:layout_width="0dp"
@@ -183,7 +174,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/court">
 
-            <!-- ===== Improved Scoreboard ===== -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -191,7 +181,6 @@
                 android:gravity="center"
                 android:paddingBottom="8dp">
 
-                <!-- Madibaz Score Card -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -227,8 +216,6 @@
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
-                <!-- Opposition Score Card -->
-                <!-- Opposition Score Card -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -252,7 +239,6 @@
                             android:textSize="16sp"
                             android:textStyle="bold"/>
 
-                        <!-- Row for score + button -->
                         <LinearLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -287,7 +273,6 @@
 
             </LinearLayout>
 
-            <!-- Centre Pass -->
             <TextView
                 android:id="@+id/centrePassText"
                 android:layout_width="match_parent"
@@ -298,7 +283,6 @@
                 android:gravity="center"
                 android:paddingTop="4dp"/>
 
-            <!-- Timer & Half Card -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/timerCard"
                 android:layout_width="match_parent"
@@ -338,8 +322,6 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-
-            <!-- Side Panel Buttons -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -369,7 +351,6 @@
                     android:backgroundTint="#033E8C"/>
             </LinearLayout>
 
-            <!-- Notes -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -391,7 +372,6 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- ====== BOTTOM BUTTONS (now a sibling) ====== -->
     <LinearLayout
         android:id="@+id/buttonGroup"
         android:layout_width="0dp"
@@ -402,7 +382,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
-        <!-- Empty, no buttons -->
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

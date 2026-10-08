@@ -32,11 +32,8 @@ public class ManageCoachProfile extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_coach_profile);
-
-        // Retrieve coach ID from SharedPreferences
         currentCoachId = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
                 .getLong("coach_ID", -1);
-
         if (currentCoachId == -1) {
             Toast.makeText(this, "Coach ID not found. Please log in again.", Toast.LENGTH_SHORT).show();
             finish();
@@ -55,10 +52,8 @@ public class ManageCoachProfile extends AppCompatActivity {
                 R.layout.dropdown_item, roles);
         actvRole.setAdapter(adapter);
 
-        // Gets the Retrofit API instance
         api = RetrofitClient.getClient().create(SuperbaseAPI.class);
 
-        // Loads coach profile using Retrofit
         loadCoachProfile(adapter);
     }
     private void loadCoachProfile(ArrayAdapter<String> adapter) {
@@ -73,9 +68,7 @@ public class ManageCoachProfile extends AppCompatActivity {
                     edtUsername.setText(coach.getCoach_username());
                     edtPassword.setText(coach.getCoach_password());
                     edtConfirmPassword.setText(coach.getCoach_password());
-
-                    // Set role in AutoCompleteTextView
-                    actvRole.setText(coach.getCoach_role(), false); // 'false' prevents filtering
+                    actvRole.setText(coach.getCoach_role(), false);
                 } else {
                     Toast.makeText(ManageCoachProfile.this, "Coach profile not found", Toast.LENGTH_SHORT).show();
                 }

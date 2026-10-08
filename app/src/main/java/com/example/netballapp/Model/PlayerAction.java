@@ -31,7 +31,6 @@ public class PlayerAction {
     public String getAction_Type() {
         return action_Type;
     }
-    // getters and setters if needed
     public String getAction_TimeStamp() {
         return action_TimeStamp;
     }

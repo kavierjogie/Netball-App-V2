@@ -32,7 +32,6 @@ public class LoginActivity extends AppCompatActivity {
         edtUsername = findViewById(R.id.username);
         edtPassword = findViewById(R.id.password);
 
-        // Gets Retrofit API instance
         api = RetrofitClient.getClient().create(SuperbaseAPI.class);
     }
 
@@ -45,7 +44,6 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        // Check internet connectivity
         if (!isNetworkAvailable()) {
             Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();
             return;
@@ -70,7 +68,6 @@ public class LoginActivity extends AppCompatActivity {
                             .putLong("coach_ID", coach.getCoach_ID())
                             .apply();
 
-                    Toast.makeText(LoginActivity.this, "Login successful!", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(LoginActivity.this, DashboardActivity.class));
                     finish();
                 } else {
@@ -85,7 +82,6 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-
     public void onRegisterCoachClicked(View view) {
         Intent intent = new Intent(LoginActivity.this, RegisterCoachActivity.class);
         startActivity(intent);
@@ -97,5 +93,4 @@ public class LoginActivity extends AppCompatActivity {
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         return activeNetwork != null && activeNetwork.isConnected();
     }
-
 }

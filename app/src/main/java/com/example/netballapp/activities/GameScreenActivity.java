@@ -1,10 +1,16 @@
 package com.example.netballapp.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -15,9 +21,13 @@ import com.example.netballapp.Model.Game;
 import com.example.netballapp.Model.Player;
 import com.example.netballapp.Model.PlayerAction;
 import com.example.netballapp.R;
+import com.example.netballapp.adapters.BenchAdapter;
 import com.example.netballapp.api.RetrofitClient;
 import com.example.netballapp.api.SuperbaseAPI;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,57 +41,47 @@ public class GameScreenActivity extends AppCompatActivity {
     private Button startButton, endHalfButton,addOppositionScoreButton;
     private CountDownTimer countUpTimer;
     private TextView centrePassText;
-    private String currentCentrePassTeam; // stores "Madibaz" or opposition
+    private String currentCentrePassTeam;
     private EditText coachNotes;
-
     private boolean isTimerRunning = false;
-    // ====== Half duration (30 minutes) ======
     private static final long HALF_TIME_MILLIS = 30 * 60 * 1000;
-    // Timer state
-    private long elapsedTime = 0; // will count UP
-    private int currentHalf = 1;  // 1 = first half, 2 = second half
-
-    private String oppositionName = "Opposition"; // default
+    private long elapsedTime = 0;
+    private int currentHalf = 1;
+    private String oppositionName = "Opposition";
     private final java.util.Map<Long, java.util.Map<String, Integer>> playerStats = new java.util.HashMap<>();
-
     private final java.util.Map<Long, java.util.List<PlayerAction>> playerActionHistory = new java.util.HashMap<>();
+    private final List<Player> onCourtPlayers = new java.util.ArrayList<>();
+    private final List<Player> benchPlayers = new java.util.ArrayList<>();
+
     private SuperbaseAPI api;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_screen);
-
-        // ====== FIND VIEWS ======
         timerText = findViewById(R.id.timer);
         startButton = findViewById(R.id.startButton);
         endHalfButton = findViewById(R.id.endHalfButton);
         centrePassText = findViewById(R.id.centrePassText);
-        scoreMadibaz = findViewById(R.id.scoreMadibazValue);      // only value
-        scoreOpposition = findViewById(R.id.scoreOppositionValue); // only value
-        scoreMadibazName = findViewById(R.id.scoreMadibaz);   // team name
-        scoreOppositionName = findViewById(R.id.scoreOpposition); // team name
+        scoreMadibaz = findViewById(R.id.scoreMadibazValue);
+        scoreOpposition = findViewById(R.id.scoreOppositionValue);
+        scoreMadibazName = findViewById(R.id.scoreMadibaz);
+        scoreOppositionName = findViewById(R.id.scoreOpposition);
         addOppositionScoreButton = findViewById(R.id.addOppositionScoreButton);
         coachNotes = findViewById(R.id.coachNotes);
 
-        // Set team names
         scoreMadibazName.setText("Madibaz");
         oppositionName = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
                 .getString("oppositionName", "Opposition");
         scoreOppositionName.setText(oppositionName);
 
-        // Disable score button until start
         addOppositionScoreButton.setEnabled(false);
 
-        // Disable all player positions
         disableAllPlayerPositions();
 
-
-        // Initialize scores
         scoreMadibaz.setText("0");
         scoreOpposition.setText("0");
 
-        // ====== INIT TIMER ======
         updateTimerText();
 
         startButton.setOnClickListener(v -> {
@@ -90,6 +90,9 @@ public class GameScreenActivity extends AppCompatActivity {
             }
         });
 
+        endHalfButton.setEnabled(false);
+        endHalfButton.setAlpha(0.5f);
+
         endHalfButton.setOnClickListener(v -> {
             stopTimer();
             handleEndHalf();
@@ -97,11 +100,7 @@ public class GameScreenActivity extends AppCompatActivity {
 
         api = RetrofitClient.getClient().create(SuperbaseAPI.class);
 
-        // Load players from DB for this game
-        // Retrieves coach ID from SharedPreferences
         Long gameId = getSharedPreferences("MyAppPrefs", MODE_PRIVATE).getLong("game_ID", -1);
-
-        Toast.makeText(this, "Game ID: " + gameId, Toast.LENGTH_SHORT).show();
 
         loadPlayers(gameId);
 
@@ -114,7 +113,6 @@ public class GameScreenActivity extends AppCompatActivity {
             currentScore++;
             scoreOpposition.setText(String.valueOf(currentScore));
 
-            // Toggle centre pass
             if (oppositionName.equals(currentCentrePassTeam)) {
                 currentCentrePassTeam = "Madibaz";
             } else {
@@ -122,7 +120,6 @@ public class GameScreenActivity extends AppCompatActivity {
             }
             centrePassText.setText("Centre Pass: " + currentCentrePassTeam);
 
-            // Update DB
             Map<String, Object> updates = new java.util.HashMap<>();
             updates.put("game_opposition_score", currentScore);
             updates.put("game_current_centre_pass_team", currentCentrePassTeam);
@@ -137,7 +134,6 @@ public class GameScreenActivity extends AppCompatActivity {
                                 Toast.LENGTH_SHORT).show();
                     }
                 }
-
                 @Override
                 public void onFailure(Call<List<Game>> call, Throwable t) {
                     Toast.makeText(GameScreenActivity.this,
@@ -146,7 +142,6 @@ public class GameScreenActivity extends AppCompatActivity {
                 }
             });
         });
-
     }
 
     private void showCentrePassDialog() {
@@ -157,26 +152,23 @@ public class GameScreenActivity extends AppCompatActivity {
                 .setItems(options, (dialog, which) -> {
                     currentCentrePassTeam = options[which];
                     centrePassText.setText("Centre Pass: " + currentCentrePassTeam);
-                    Toast.makeText(this, "First centre pass: " + currentCentrePassTeam, Toast.LENGTH_SHORT).show();
                     startTimer();
                     addOppositionScoreButton.setEnabled(true);
                     enableAllPlayerPositions();
-                    startButton.setEnabled(false); // disables button click
-                    startButton.setAlpha(0.5f);    // visually grey it out
-
-
+                    startButton.setEnabled(false);
+                    startButton.setAlpha(0.5f);
+                    endHalfButton.setEnabled(true);
+                    endHalfButton.setAlpha(1.0f);
                 })
                 .setCancelable(false)
                 .show();
     }
 
     private void updateScoreAndCentrePass() {
-        // 1️⃣ Update Madibaz score locally
         int currentScore = Integer.parseInt(scoreMadibaz.getText().toString());
         currentScore++;
         scoreMadibaz.setText(String.valueOf(currentScore));
 
-        // 2️⃣ Toggle centre pass locally
         if ("Madibaz".equals(currentCentrePassTeam)) {
             currentCentrePassTeam = oppositionName;
         } else {
@@ -184,7 +176,6 @@ public class GameScreenActivity extends AppCompatActivity {
         }
         centrePassText.setText("Centre Pass: " + currentCentrePassTeam);
 
-        // 3️⃣ Update DB in a single call
         Long gameId = getSharedPreferences("MyAppPrefs", MODE_PRIVATE).getLong("game_ID", -1);
         Map<String, Object> updates = new java.util.HashMap<>();
         updates.put("game_madibaz_score", currentScore);
@@ -210,14 +201,11 @@ public class GameScreenActivity extends AppCompatActivity {
         });
     }
 
-
-
-    // ---------- TIMER METHODS ----------
     private void startTimer() {
         countUpTimer = new CountDownTimer(HALF_TIME_MILLIS - elapsedTime, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
-                elapsedTime += 1000; // count UP
+                elapsedTime += 1000;
                 updateTimerText();
             }
 
@@ -239,20 +227,17 @@ public class GameScreenActivity extends AppCompatActivity {
     }
 
     private void handleEndHalf() {
-        saveCoachNoteOnHalfEnd(); // <-- Save notes first
+        saveCoachNoteOnHalfEnd();
 
         if (currentHalf == 1) {
-            Toast.makeText(this, "End of First Half", Toast.LENGTH_SHORT).show();
             currentHalf = 2;
             resetTimer();
             TextView halfLabel = findViewById(R.id.halfLabel);
             halfLabel.setText("2nd Half");
 
-            // Re-enable start button for second half
             startButton.setEnabled(true);
             startButton.setAlpha(1.0f);
         } else if (currentHalf == 2) {
-            Toast.makeText(this, "Full Time", Toast.LENGTH_LONG).show();
             stopTimer();
 
             Intent intent = new Intent(GameScreenActivity.this, MatchAnalysis.class);
@@ -260,7 +245,6 @@ public class GameScreenActivity extends AppCompatActivity {
             finish();
         }
     }
-
 
     private void resetTimer() {
         elapsedTime = 0;
@@ -290,12 +274,25 @@ public class GameScreenActivity extends AppCompatActivity {
 
                 List<Court> courtAssignments = response.body();
                 if (courtAssignments != null) {
+                    onCourtPlayers.clear();
+                    benchPlayers.clear();
+
+                    List<Long> benchIds = new ArrayList<>();
+
                     for (Court court : courtAssignments) {
                         Long playerId = court.getPlayer_id();
                         String pos = court.getCourt_position_field();
+                        Long courtId = court.getCourt_ID();
 
-                        // Now fetch player details by ID
-                        loadPlayerDetails(playerId, pos);
+                        if (pos != null && isOnCourtPosition(pos)) {
+                            loadPlayerDetails(playerId, pos, courtId);
+                        } else {
+                            benchIds.add(playerId);
+                        }
+                    }
+
+                    if (!benchIds.isEmpty()) {
+                        fetchBenchPlayersBatch(benchIds);
                     }
                 }
             }
@@ -307,7 +304,43 @@ public class GameScreenActivity extends AppCompatActivity {
         });
     }
 
-    private void loadPlayerDetails(Long playerId, String pos) {
+    private boolean isOnCourtPosition(String pos) {
+        return pos.equalsIgnoreCase("GS") ||
+                pos.equalsIgnoreCase("GA") ||
+                pos.equalsIgnoreCase("WA") ||
+                pos.equalsIgnoreCase("C") ||
+                pos.equalsIgnoreCase("WD") ||
+                pos.equalsIgnoreCase("GD") ||
+                pos.equalsIgnoreCase("GK");
+    }
+
+    private void fetchBenchPlayersBatch(List<Long> benchIds) {
+        StringBuilder idQuery = new StringBuilder("in.(");
+        for (int i = 0; i < benchIds.size(); i++) {
+            idQuery.append(benchIds.get(i));
+            if (i < benchIds.size() - 1) idQuery.append(",");
+        }
+        idQuery.append(")");
+
+        Call<List<Player>> call = api.getPlayersByIds(idQuery.toString());
+        call.enqueue(new Callback<List<Player>>() {
+            @Override
+            public void onResponse(Call<List<Player>> call, Response<List<Player>> response) {
+                if (!response.isSuccessful() || response.body() == null) return;
+
+                benchPlayers.addAll(response.body());
+
+                highlightPositionsWithSubs();
+            }
+
+            @Override
+            public void onFailure(Call<List<Player>> call, Throwable t) {
+                Toast.makeText(GameScreenActivity.this, "Error loading bench players: " + t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void loadPlayerDetails(Long playerId, String pos, Long courtId) {
         Call<List<Player>> call = api.getPlayerById("eq." + playerId);
         call.enqueue(new Callback<List<Player>>() {
             @Override
@@ -320,17 +353,15 @@ public class GameScreenActivity extends AppCompatActivity {
                 List<Player> players = response.body();
                 if (players != null && !players.isEmpty()) {
                     Player player = players.get(0);
+                    onCourtPlayers.add(player);
 
-                    // Create two-line display with initials and position
                     String playerDisplay = getInitials(player) + "\n(" + pos + ")";
 
-                    // Match "posGS", "posGA", etc. in layout
                     int resId = getResources().getIdentifier("pos" + pos, "id", getPackageName());
                     TextView posText = findViewById(resId);
                     if (posText != null) {
                         posText.setText(playerDisplay);
 
-                        // Add click listener to record an action
                         posText.setOnClickListener(v -> {
                             if (!isTimerRunning) {
                                 Toast.makeText(GameScreenActivity.this, "Start the game first!", Toast.LENGTH_SHORT).show();
@@ -339,6 +370,10 @@ public class GameScreenActivity extends AppCompatActivity {
                             showActionDialog(player, pos);
                         });
 
+                        posText.setOnLongClickListener(v -> {
+                            showBenchSwapDialog(player, pos, courtId, posText);
+                            return true;
+                        });
                     }
                 }
             }
@@ -349,10 +384,96 @@ public class GameScreenActivity extends AppCompatActivity {
             }
         });
     }
+    private boolean hasSubForPosition(String pos) {
+        for (Player p : benchPlayers) {
+            if (p.getPlayer_position() != null && p.getPlayer_position().equalsIgnoreCase(pos)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void highlightPositionsWithSubs() {
+        String[] positions = {"GS", "GA", "WA", "C", "WD", "GD", "GK"};
+        for (String pos : positions) {
+            int resId = getResources().getIdentifier("pos" + pos, "id", getPackageName());
+            TextView posText = findViewById(resId);
+            if (posText != null) {
+                if (hasSubForPosition(pos)) {
+                    posText.setText(posText.getText() + " *");
+                    posText.setTextColor(getResources().getColor(R.color.sub_available));
+                } else {
+                    posText.setTextColor(getResources().getColor(android.R.color.black));
+                }
+            }
+        }
+    }
+
+    private void showBenchSwapDialog(Player currentPlayer, String pos, Long courtId, TextView posText) {
+        List<Player> eligibleBench = new ArrayList<>();
+        for (Player p : benchPlayers) {
+            if (p.getPlayer_position() != null && p.getPlayer_position().equalsIgnoreCase(pos)) {
+                eligibleBench.add(p);
+            }
+        }
+
+        if (eligibleBench.isEmpty()) {
+            Toast.makeText(this, "No bench players for position " + pos, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.dialog_bench_swap);
+        dialog.getWindow().setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.getWindow().setGravity(Gravity.CENTER);
+
+        RecyclerView recyclerView = dialog.findViewById(R.id.recyclerBench);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        BenchAdapter adapter = new BenchAdapter(eligibleBench, newPlayer -> {
+            swapPlayer(currentPlayer, newPlayer, pos, courtId, posText);
+            dialog.dismiss();
+        });
+        recyclerView.setAdapter(adapter);
+
+        dialog.show();
+    }
+
+    private void swapPlayer(Player currentPlayer, Player newPlayer, String pos, Long courtId, TextView posText) {
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("player_id", newPlayer.getPlayer_ID());
+
+        Call<List<Court>> call = api.updateCourt("eq." + courtId, updates);
+        call.enqueue(new Callback<List<Court>>() {
+            @Override
+            public void onResponse(Call<List<Court>> call, Response<List<Court>> response) {
+                if (response.isSuccessful()) {
+
+                    posText.setText(getInitials(newPlayer) + "\n(" + pos + ")");
+                    posText.setOnClickListener(v -> showActionDialog(newPlayer, pos));
+                    posText.setOnLongClickListener(v -> {
+                        showBenchSwapDialog(newPlayer, pos, courtId, posText);
+                        return true;
+                    });
+
+                    onCourtPlayers.remove(currentPlayer);
+                    onCourtPlayers.add(newPlayer);
+                    benchPlayers.remove(newPlayer);
+                    benchPlayers.add(currentPlayer);
+                } else {
+                    Toast.makeText(GameScreenActivity.this, "Failed to swap: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Court>> call, Throwable t) {
+                Toast.makeText(GameScreenActivity.this, "Network error: " + t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
     private void saveCoachNoteOnHalfEnd() {
         String note = coachNotes.getText().toString().trim();
-        if (note.isEmpty()) return; // skip if empty
+        if (note.isEmpty()) return;
 
         Long gameId = getSharedPreferences("MyAppPrefs", MODE_PRIVATE).getLong("game_ID", -1);
         if (gameId == -1) return;
@@ -368,7 +489,6 @@ public class GameScreenActivity extends AppCompatActivity {
                     Toast.makeText(GameScreenActivity.this, "Failed to save coach note: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
-
             @Override
             public void onFailure(Call<List<Game>> call, Throwable t) {
                 Toast.makeText(GameScreenActivity.this, "Network error: " + t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
@@ -376,7 +496,6 @@ public class GameScreenActivity extends AppCompatActivity {
         });
     }
 
-    // Helper method
     private String getInitials(Player player) {
         String firstInitial = player.getPlayer_FirstName().substring(0, 1).toUpperCase();
         String lastInitial = player.getPlayer_Surname().substring(0, 1).toUpperCase();
@@ -384,30 +503,10 @@ public class GameScreenActivity extends AppCompatActivity {
     }
 
     private void showActionDialog(Player player, String pos) {
-        String[] actions = {
-                "Goal",
-                "Penalty Goal",
-                "Goal Missed",
-                "For",
-                "Against",
-                "Drop Ball",
-                "Held Ball",
-                "Stepping",
-                "Break",
-                "Contact",
-                "Obstruction",
-                "Centre Pass Receive",
-                "Goal Assist",
-                "Offensive Rebound",
-                "Defensive Rebound",
-                "Deflection",
-                "Intercept"
-        };
+        String[] actions = {"Goal", "Penalty Goal", "Goal Missed", "For", "Against", "Drop Ball", "Held Ball", "Stepping", "Break", "Contact", "Obstruction", "Centre Pass Receive", "Goal Assist", "Offensive Rebound", "Defensive Rebound", "Deflection", "Intercept"};
 
-        // Get current stats for this player
         Map<String, Integer> stats = playerStats.get(player.getPlayer_ID());
 
-        // Build display array with totals
         String[] actionsWithTotals = new String[actions.length];
         for (int i = 0; i < actions.length; i++) {
             int count = 0;
@@ -420,7 +519,7 @@ public class GameScreenActivity extends AppCompatActivity {
         new android.app.AlertDialog.Builder(this)
                 .setTitle("Record Action for " + player.getPlayer_FirstName() + " " + player.getPlayer_Surname())
                 .setItems(actionsWithTotals, (dialog, which) -> {
-                    String actionType = actions[which]; // exact action type
+                    String actionType = actions[which];
 
                     String timestamp = timerText.getText().toString().split(" ")[0];
                     String period = "Half " + currentHalf;
@@ -434,20 +533,17 @@ public class GameScreenActivity extends AppCompatActivity {
                             gameId
                     );
 
-                    // Update local totals & history
                     updatePlayerStats(action);
 
                     playerActionHistory.putIfAbsent(player.getPlayer_ID(), new java.util.ArrayList<>());
                     playerActionHistory.get(player.getPlayer_ID()).add(action);
 
-                    // Save to API
                     savePlayerAction(action);
 
                     if (actionType.equals("Goal") || actionType.equals("Penalty Goal")) {
-                        updateScoreAndCentrePass(); // updates both score & centre pass in UI and DB
+                        updateScoreAndCentrePass();
                     }
 
-                    // Reopen dialog to refresh totals
                     showActionDialog(player, pos);
                 })
                 .setNegativeButton("Close", null)
@@ -469,7 +565,6 @@ public class GameScreenActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(GameScreenActivity.this, "Action recorded!", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(GameScreenActivity.this, "Error saving action: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
@@ -482,25 +577,24 @@ public class GameScreenActivity extends AppCompatActivity {
     }
 
     private void disableAllPlayerPositions() {
-        String[] positions = {"GS", "GA", "WA", "C", "WD", "GD", "GK"}; // all possible positions
+        String[] positions = {"GS", "GA", "WA", "C", "WD", "GD", "GK"};
         for (String pos : positions) {
             int resId = getResources().getIdentifier("pos" + pos, "id", getPackageName());
             TextView posText = findViewById(resId);
             if (posText != null) {
                 posText.setClickable(false);
-                posText.setAlpha(0.5f); // optionally grey out
+                posText.setAlpha(0.5f);
             }
         }
     }
-
     private void enableAllPlayerPositions() {
-        String[] positions = {"GS", "GA", "WA", "C", "WD", "GD", "GK"}; // all possible positions
+        String[] positions = {"GS", "GA", "WA", "C", "WD", "GD", "GK"};
         for (String pos : positions) {
             int resId = getResources().getIdentifier("pos" + pos, "id", getPackageName());
             TextView posText = findViewById(resId);
             if (posText != null) {
                 posText.setClickable(true);
-                posText.setAlpha(1.0f); // reset opacity
+                posText.setAlpha(1.0f);
             }
         }
     }

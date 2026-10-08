@@ -38,7 +38,6 @@ public class Player implements Serializable {
         this.player_Surname = player_Surname;
     }
 
-    // For placeholder rows like "Select a player" or "No players available"
     public Player(long player_ID, String player_FirstName, String player_Surname, String player_position) {
         this.player_ID = player_ID;
         this.player_FirstName = player_FirstName;
@@ -48,7 +47,6 @@ public class Player implements Serializable {
     public Player(Long player_ID) {
         this.player_ID = player_ID;
     }
-
 
     public String getPlayer_FirstName() {
         return player_FirstName;

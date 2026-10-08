@@ -41,23 +41,18 @@ public class PlayerAdapter extends RecyclerView.Adapter<PlayerAdapter.PlayerView
     public void onBindViewHolder(@NonNull PlayerViewHolder holder, int position) {
         Player player = playerList.get(position);
 
-        // Full name
         holder.txtFullName.setText(player.getPlayer_FirstName() + " " + player.getPlayer_Surname());
-
-        // Other info (check for nulls)
         holder.txtPlayerNumber.setText("Number: " + (player.getPlayer_Number() != null ? player.getPlayer_Number() : "-"));
         holder.txtPlayerPosition.setText("Position: " + (player.getPlayer_position() != null ? player.getPlayer_position() : "-"));
         holder.txtPlayerDOB.setText("DOB: " + (player.getPlayer_DOB() != null ? player.getPlayer_DOB() : "-"));
         holder.txtPlayerHeight.setText("Height: " + (player.getPlayer_Height() != null ? player.getPlayer_Height() + " cm" : "-"));
 
-        // Update button click
         holder.btnUpdate.setOnClickListener(v -> {
             Intent intent = new Intent(context, UpdatePlayerProfile.class);
             intent.putExtra("player_id", player.getPlayer_ID());
             context.startActivity(intent);
         });
 
-        // Delete button click
         holder.btnDelete.setOnClickListener(v -> listener.onDeletePlayer(player, position));
     }
 
@@ -83,8 +78,6 @@ public class PlayerAdapter extends RecyclerView.Adapter<PlayerAdapter.PlayerView
         }
     }
 
-
-    // Method to remove player from list
     public void removePlayer(int position) {
         if (position >= 0 && position < playerList.size()) {
             playerList.remove(position);

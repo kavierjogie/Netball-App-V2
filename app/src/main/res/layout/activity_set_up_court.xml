@@ -19,15 +19,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <ImageView
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="@drawable/circle_bg"
-            android:src="@drawable/ic_launcher_foreground"
-            android:padding="6dp"
-            android:contentDescription="Profile"
-            app:tint="@android:color/white" />
-
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -63,7 +54,6 @@
             app:layout_constraintVertical_bias="0.5"
             app:layout_constraintWidth_percent="0.6">
 
-            <!-- Center Circle -->
             <View
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -75,7 +65,6 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_percent="0.25" />
 
-            <!-- Top Half Circle -->
             <View
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -86,7 +75,6 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintWidth_percent="0.45" />
 
-            <!-- Bottom Half Circle -->
             <View
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -97,7 +85,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintWidth_percent="0.45" />
 
-            <!-- Player Positions -->
             <TextView
                 android:id="@+id/posGS"
                 style="@style/PlayerPosition"
@@ -205,7 +192,6 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/lstPlayers"
             android:layout_width="0dp"
@@ -230,26 +216,29 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnBack"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:layout_weight="1"
-            android:backgroundTint="#888888"
-            android:onClick="onBackClicked"
+            android:layout_marginEnd="8dp"
             android:text="BACK"
-            android:textColor="@android:color/white" />
+            android:textColor="@android:color/white"
+            android:backgroundTint="#A0A0A0"
+            android:onClick="onBackClicked"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnNext"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:layout_height="56dp"
             android:layout_weight="1"
-            android:backgroundTint="#003da5"
-            android:onClick="onNextClicked"
+            android:layout_marginStart="8dp"
             android:text="NEXT"
-            android:textColor="@android:color/white" />
+            android:textColor="@android:color/white"
+            android:backgroundTint="#033E8C"
+            android:onClick="onNextClicked"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

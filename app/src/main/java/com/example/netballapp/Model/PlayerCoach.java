@@ -3,7 +3,6 @@ package com.example.netballapp.Model;
 public class PlayerCoach {
     private Long coach_ID;
     private Long player_ID;
-
     public PlayerCoach(Long coach_ID, Long player_ID) {
         this.coach_ID = coach_ID;
         this.player_ID = player_ID;

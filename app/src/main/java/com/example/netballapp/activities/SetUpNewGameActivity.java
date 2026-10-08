@@ -78,14 +78,12 @@ public class SetUpNewGameActivity extends AppCompatActivity {
                     Game savedGame = response.body().get(0);
                     Toast.makeText(SetUpNewGameActivity.this, "Set Up New Game successful!", Toast.LENGTH_SHORT).show();
 
-                    // Save game info
                     getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
                             .edit()
                             .putLong("game_ID", savedGame.getGame_ID())
                             .putString("oppositionName", edtOppositionName.getText().toString().trim())
                             .apply();
 
-                    // ✅ Now link coach to game
                     long coachId = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
                             .getLong("coach_ID", -1);
 
@@ -107,7 +105,6 @@ public class SetUpNewGameActivity extends AppCompatActivity {
                         }
                     });
 
-                    // Move on to SetUpCourtActivity
                     Intent intent = new Intent(SetUpNewGameActivity.this, SetUpCourtActivity.class);
                     startActivity(intent);
                     finish();

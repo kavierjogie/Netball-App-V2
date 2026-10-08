@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="@android:color/darker_gray">
 
-    <!-- Top Bar -->
     <LinearLayout
         android:id="@+id/topBar"
         android:layout_width="0dp"
@@ -19,15 +18,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <ImageView
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="@drawable/circle_bg"
-            android:src="@drawable/ic_launcher_foreground"
-            android:padding="6dp"
-            android:contentDescription="Profile"
-            app:tint="@android:color/white" />
-
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -39,7 +29,6 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Main Content -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/contentContainer"
         android:layout_width="0dp"
@@ -49,7 +38,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Bench Area -->
         <ScrollView
             android:id="@+id/scrollBenchArea"
             android:layout_width="0dp"
@@ -69,7 +57,6 @@
                 android:padding="12dp"
                 android:background="#e0f0ff">
 
-                <!-- Attack Section -->
                 <LinearLayout
                     android:id="@+id/attackContainer"
                     android:layout_width="match_parent"
@@ -90,7 +77,6 @@
                         android:paddingBottom="8dp"/>
                 </LinearLayout>
 
-                <!-- Defence Section -->
                 <LinearLayout
                     android:id="@+id/defenceContainer"
                     android:layout_width="match_parent"
@@ -111,7 +97,6 @@
                         android:paddingBottom="8dp"/>
                 </LinearLayout>
 
-                <!-- Centre Section -->
                 <LinearLayout
                     android:id="@+id/centreContainer"
                     android:layout_width="match_parent"
@@ -134,7 +119,6 @@
 
         </ScrollView>
 
-        <!-- Player List -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/lstPlayers"
             android:layout_width="0dp"
@@ -146,7 +130,6 @@
             app:layout_constraintEnd_toEndOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Button Group -->
     <LinearLayout
         android:id="@+id/buttonGroup"
         android:layout_width="0dp"
@@ -158,26 +141,29 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnBack"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:layout_weight="1"
-            android:backgroundTint="#888888"
-            android:onClick="onBackClicked"
+            android:layout_marginEnd="8dp"
             android:text="BACK"
-            android:textColor="@android:color/white" />
+            android:textColor="@android:color/white"
+            android:backgroundTint="#A0A0A0"
+            android:onClick="onBackClicked"/>
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnStartGame"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:layout_height="56dp"
             android:layout_weight="1"
-            android:backgroundTint="#003da5"
-            android:onClick="onStartGameClicked"
-            android:text="START GAME"
-            android:textColor="@android:color/white" />
+            android:layout_marginStart="8dp"
+            android:text="NEXT"
+            android:textColor="@android:color/white"
+            android:backgroundTint="#033E8C"
+            android:onClick="onStartGameClicked"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

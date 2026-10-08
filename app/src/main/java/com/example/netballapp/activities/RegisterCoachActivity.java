@@ -12,6 +12,8 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.netballapp.Model.Coach;
+import com.example.netballapp.Model.Player;
+import com.example.netballapp.Model.PlayerCoach;
 import com.example.netballapp.R;
 import com.example.netballapp.api.RetrofitClient;
 import com.example.netballapp.api.SuperbaseAPI;
@@ -80,16 +82,19 @@ public class RegisterCoachActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<List<Coach>> call, Response<List<Coach>> response) {
                 if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
-                    Coach savedCoach = response.body().get(0); //The returned coach
-                    Toast.makeText(RegisterCoachActivity.this, "Registration successful!", Toast.LENGTH_SHORT).show();
+                    Coach savedCoach = response.body().get(0);
+
+                    long coachId = savedCoach.getCoach_ID();
 
                     getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
                             .edit()
-                            .putLong("coach_ID", savedCoach.getCoach_ID())
+                            .putLong("coach_ID", coachId)
                             .apply();
 
-                    Intent intent = new Intent(RegisterCoachActivity.this, DashboardActivity.class);
-                    startActivity(intent);
+                    insertDefaultPlayers(coachId);
+
+                    Toast.makeText(RegisterCoachActivity.this, "Registration successful!", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(RegisterCoachActivity.this, LoginActivity.class));
                     finish();
                 } else {
                     Toast.makeText(RegisterCoachActivity.this, "Registration failed. Username might already exist.", Toast.LENGTH_SHORT).show();
@@ -101,5 +106,58 @@ public class RegisterCoachActivity extends AppCompatActivity {
                 Toast.makeText(RegisterCoachActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    private void insertDefaultPlayers(long coachId) {
+        Player[] defaultPlayers = new Player[]{
+                new Player("James", "Smith", 1, "GK", "1995-11-23", 190),
+                new Player("Emily", "Johnson", 5, "WA", "1998-05-19", 175),
+                new Player("Liam", "Brown", 12, "C", "2000-12-14", 180),
+                new Player("Chloe", "Williams", 9, "GS", "1997-05-20", 178),
+                new Player("Ethan", "Jones", 3, "WD", "1996-11-13", 182),
+                new Player("Sophia", "Garcia", 7, "GK", "1999-05-18", 177),
+                new Player("Noah", "Martinez", 11, "GA", "2001-08-19", 185),
+                new Player("Olivia", "Davis", 6, "C", "1998-09-05", 170),
+                new Player("Lucas", "Rodriguez", 2, "WA", "2000-04-24", 183),
+                new Player("Mia", "Wilson", 8, "GD", "1997-06-23", 176)
+        };
+
+        for (Player p : defaultPlayers) {
+            Call<List<Player>> call = api.registerPlayer(p);
+            call.enqueue(new Callback<List<Player>>() {
+                @Override
+                public void onResponse(Call<List<Player>> call, Response<List<Player>> response) {
+                    if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
+                        Player registeredPlayer = response.body().get(0);
+
+                        PlayerCoach pc = new PlayerCoach(coachId, registeredPlayer.getPlayer_ID());
+                        api.assignPlayerToCoach(pc).enqueue(new Callback<PlayerCoach>() {
+                            @Override
+                            public void onResponse(Call<PlayerCoach> call, Response<PlayerCoach> response) {
+                                if (!response.isSuccessful()) {
+                                    System.err.println("Failed to link player " + registeredPlayer.getPlayer_FirstName());
+                                }
+                            }
+                            @Override
+                            public void onFailure(Call<PlayerCoach> call, Throwable t) {
+                                System.err.println("Error linking player " + registeredPlayer.getPlayer_FirstName() + ": " + t.getMessage());
+                            }
+                        });
+
+                    } else {
+                        Toast.makeText(RegisterCoachActivity.this,
+                                "Failed to insert player: " + p.getPlayer_FirstName(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<List<Player>> call, Throwable t) {
+                    Toast.makeText(RegisterCoachActivity.this,
+                            "Error inserting player: " + t.getMessage(),
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 }

@@ -2,6 +2,7 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="highlight">#FFE082</color> <!--Soft yellow -->
-    <color name="highlight_blue">#B3E5FC</color> <!-- Soft sky blue -->
+    <color name="highlight">#FFE082</color>
+    <color name="highlight_blue">#B3E5FC</color>
+    <color name="sub_available">#A5D6A7</color>
 </resources>

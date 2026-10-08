@@ -92,7 +92,7 @@ public class Player_Profiles extends AppCompatActivity {
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
                     adapter.removePlayer(position);
-                    toggleEmptyView(); // 👈 check again after deletion
+                    toggleEmptyView();
                     Toast.makeText(Player_Profiles.this, "Player deleted", Toast.LENGTH_SHORT).show();
                 }
                 else {
@@ -129,8 +129,6 @@ public class Player_Profiles extends AppCompatActivity {
             recyclerView.setVisibility(View.VISIBLE);
         }
     }
-
-
     public void onBackClicked(View view) {
         startActivity(new Intent(this, DashboardActivity.class));
         finish();

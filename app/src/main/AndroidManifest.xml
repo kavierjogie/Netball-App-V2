@@ -16,6 +16,9 @@
         android:theme="@style/Theme.NetBallApp"
         tools:targetApi="31">
         <activity
+            android:name=".activities.UpdateGameDetails"
+            android:exported="false" />
+        <activity
             android:name=".activities.ManageGamesActivity"
             android:exported="false" />
         <activity

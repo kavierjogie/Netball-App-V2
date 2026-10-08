@@ -44,22 +44,21 @@ public class ManageGamesActivity extends AppCompatActivity {
         adapter = new GameAdapter(this, games, new GameAdapter.GameActionListener() {
             @Override
             public void onView(Game game, int position) {
-                // Save game ID in SharedPreferences (or pass directly in Intent)
                 getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
                         .edit()
                         .putLong("game_ID", game.getGame_ID())
                         .apply();
-
-                // Start MatchAnalysis activity
                 Intent intent = new Intent(ManageGamesActivity.this, MatchAnalysis.class);
                 startActivity(intent);
             }
 
-
             @Override
             public void onUpdate(Game game, int position) {
-                Toast.makeText(ManageGamesActivity.this, "Update: " + game.getGame_Name(), Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(ManageGamesActivity.this, UpdateGameDetails.class);
+                intent.putExtra("game_id", game.getGame_ID());
+                startActivity(intent);
             }
+
 
             @Override
             public void onDelete(Game game, int position) {
@@ -83,7 +82,6 @@ public class ManageGamesActivity extends AppCompatActivity {
         long coachId = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
                 .getLong("coach_ID", -1);
 
-        // 👇 Notice the !inner here
         Call<List<Game>> call = api.getGamesForCoach("*,coach_game!inner(*)", "eq." + coachId);
 
         call.enqueue(new Callback<List<Game>>() {
@@ -105,10 +103,8 @@ public class ManageGamesActivity extends AppCompatActivity {
         });
     }
 
-
-
     private void deleteGameFromAPI(long gameId, int position) {
-        Call<Void> call = api.deleteGame("eq." + gameId); // Replace with your actual API method
+        Call<Void> call = api.deleteGame("eq." + gameId);
         call.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {

@@ -7,7 +7,6 @@
     android:padding="12dp"
     android:background="@drawable/card_background">
 
-    <!-- Player Name -->
     <TextView
         android:id="@+id/tvPlayerName"
         android:layout_width="match_parent"
@@ -17,7 +16,6 @@
         android:textSize="16sp"
         android:paddingBottom="4dp"/>
 
-    <!-- Scoring Section -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -31,7 +29,6 @@
     <TextView android:id="@+id/tvGoalMissed" android:layout_width="match_parent" android:layout_height="wrap_content"/>
     <TextView android:id="@+id/tvSuccessRate" android:layout_width="match_parent" android:layout_height="wrap_content"/>
 
-    <!-- Positive Play Section -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -49,7 +46,6 @@
     <TextView android:id="@+id/tvDeflection" android:layout_width="match_parent" android:layout_height="wrap_content"/>
     <TextView android:id="@+id/tvIntercept" android:layout_width="match_parent" android:layout_height="wrap_content"/>
 
-    <!-- Penalties & Errors Section -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

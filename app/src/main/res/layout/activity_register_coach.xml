@@ -12,7 +12,6 @@
         android:layout_height="wrap_content"
         android:padding="16dp">
 
-        <!-- Top Bar -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="56dp"
@@ -20,16 +19,6 @@
             android:orientation="horizontal"
             android:gravity="center_vertical"
             android:paddingHorizontal="12dp">
-
-            <ImageView
-                android:id="@+id/profileIcon"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
-                android:background="@drawable/circle_bg"
-                android:src="@drawable/ic_launcher_foreground"
-                android:padding="6dp"
-                android:contentDescription="Profile"
-                app:tint="@android:color/white" />
 
             <TextView
                 android:id="@+id/registerTitle"
@@ -43,7 +32,6 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- Inputs -->
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -68,7 +56,6 @@
                 android:layout_height="wrap_content"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Role Dropdown -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilRole"
             android:layout_width="match_parent"
@@ -125,7 +112,6 @@
                 android:inputType="textPassword"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Buttons Row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

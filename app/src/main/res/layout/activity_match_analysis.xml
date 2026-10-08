@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
-    <!-- Top Bar -->
     <LinearLayout
         android:id="@+id/topBar"
         android:layout_width="0dp"
@@ -18,15 +17,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <ImageView
-            android:id="@+id/backIcon"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/ic_launcher_background"
-            android:contentDescription="Back"
-            app:tint="@android:color/white"
-            android:onClick="onBackClicked"/>
-
         <TextView
             android:id="@+id/pageTitle"
             android:layout_width="0dp"
@@ -37,9 +27,9 @@
             android:textSize="20sp"
             android:textStyle="bold"
             android:paddingStart="12dp"/>
+
     </LinearLayout>
 
-    <!-- Scrollable Content -->
     <ScrollView
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -55,7 +45,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Game Info Card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -119,157 +108,53 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- KPI Section -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/kpiCard"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="6dp"
-                app:cardBackgroundColor="#F7F7F7">
-
-                <LinearLayout
-                    android:id="@+id/kpiContainer"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="12dp"
-                    android:gravity="center"
-                    android:weightSum="4">
-
-                    <!-- Goals -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center">
-
-                        <TextView
-                            android:id="@+id/tvKpiGoals"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textSize="20sp"
-                            android:textStyle="bold"
-                            android:textColor="#011933"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Goals"
-                            android:textSize="14sp"
-                            android:textColor="#555555"/>
-                    </LinearLayout>
-
-                    <!-- Assists -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center">
-
-                        <TextView
-                            android:id="@+id/tvKpiAssists"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textSize="20sp"
-                            android:textStyle="bold"
-                            android:textColor="#011933"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Assists"
-                            android:textSize="14sp"
-                            android:textColor="#555555"/>
-                    </LinearLayout>
-
-                    <!-- Intercepts -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center">
-
-                        <TextView
-                            android:id="@+id/tvKpiIntercepts"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textSize="20sp"
-                            android:textStyle="bold"
-                            android:textColor="#011933"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Intercepts"
-                            android:textSize="14sp"
-                            android:textColor="#555555"/>
-                    </LinearLayout>
-
-                    <!-- Deflections -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center">
-
-                        <TextView
-                            android:id="@+id/tvKpiDeflections"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textSize="20sp"
-                            android:textStyle="bold"
-                            android:textColor="#011933"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Deflections"
-                            android:textSize="14sp"
-                            android:textColor="#555555"/>
-                    </LinearLayout>
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
-
-
-            <!-- Toggle -->
-            <RadioGroup
-                android:id="@+id/toggleStats"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center"
-                android:layout_marginBottom="12dp">
+                android:layout_marginBottom="12dp"
+                android:paddingHorizontal="8dp">
 
-                <RadioButton
-                    android:id="@+id/rbPlayerPerformance"
-                    style="@style/Widget.MaterialComponents.CompoundButton.RadioButton"
+                <RadioGroup
+                    android:id="@+id/rbHalfToggle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Player Performance"
-                    android:checked="true"
-                    android:buttonTint="#033E8C"/>
+                    android:orientation="horizontal"
+                    android:gravity="center">
 
-                <RadioButton
-                    android:id="@+id/rbTeamStats"
-                    style="@style/Widget.MaterialComponents.CompoundButton.RadioButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Team Statistics"
-                    android:layout_marginStart="24dp"
-                    android:buttonTint="#033E8C"/>
-            </RadioGroup>
+                    <RadioButton
+                        android:id="@+id/rbFullGame"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Full Game"
+                        android:checked="true"/>
 
-            <!-- Player RecyclerView -->
+                    <RadioButton
+                        android:id="@+id/rbHalf1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Half 1"
+                        android:layout_marginStart="12dp"/>
+
+                    <RadioButton
+                        android:id="@+id/rbHalf2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Half 2"
+                        android:layout_marginStart="12dp"/>
+                </RadioGroup>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Player Performance"
+                android:textColor="#011933"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/rvPlayerActionsCard"
                 android:layout_width="match_parent"
@@ -287,15 +172,21 @@
                     android:scrollbars="vertical"/>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Chart Buttons Card -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Match Charts"
+                android:textColor="#011933"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/chartButtonsCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="#F7F7F7">
+                android:padding="8dp">
 
                 <HorizontalScrollView
                     android:layout_width="match_parent"
@@ -306,67 +197,54 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
 
-                        <Button
+                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnGoalsChart"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Goals"/>
+                            android:layout_height="56dp"
+                            android:layout_marginEnd="8dp"
+                            android:backgroundTint="#033E8C"
+                            android:text="Goals"
+                            android:textColor="@android:color/white"
+                            android:onClick="onGoalsChartClicked" />
 
-                        <Button
+                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnAccuracyChart"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Accuracy"
-                            android:layout_marginStart="8dp"/>
+                            android:layout_height="56dp"
+                            android:layout_marginEnd="8dp"
+                            android:backgroundTint="#033E8C"
+                            android:text="Shooting Accuracy"
+                            android:textColor="@android:color/white"
+                            android:onClick="onAccuracyChartClicked" />
 
-                        <Button
+                        <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnErrorsChart"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_height="56dp"
+                            android:layout_marginEnd="8dp"
+                            android:backgroundTint="#033E8C"
                             android:text="Errors"
-                            android:layout_marginStart="8dp"/>
+                            android:textColor="@android:color/white"
+                            android:onClick="onErrorsChartClicked" />
 
-                        <Button
-                            android:id="@+id/btnRadarChart"
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnPositivePlayChart"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Contributions"
-                            android:layout_marginStart="8dp"/>
-
-                        <Button
-                            android:id="@+id/btnTeamShootingChart"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Team Shooting"
-                            android:layout_marginStart="8dp"/>
-                        <RadioGroup
-                            android:id="@+id/rbHalfToggle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_marginTop="8dp">
-
-                            <RadioButton
-                                android:id="@+id/rbHalf1"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Half 1"
-                                android:checked="true"/>
-
-                            <RadioButton
-                                android:id="@+id/rbHalf2"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Half 2"/>
-                        </RadioGroup>
-
+                            android:layout_height="56dp"
+                            android:backgroundTint="#033E8C"
+                            android:text="Positive Play"
+                            android:textColor="@android:color/white"
+                            android:onClick="onPositivePlayChartClicked" />
 
                     </LinearLayout>
                 </HorizontalScrollView>
             </com.google.android.material.card.MaterialCardView>
 
 
-            <!-- Player Stats Chart -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/playerStatsChartCard"
                 android:layout_width="match_parent"
@@ -382,7 +260,6 @@
                     android:layout_height="match_parent"/>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Shooting Accuracy Chart -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/shootingAccuracyChartCard"
                 android:layout_width="match_parent"
@@ -398,7 +275,6 @@
                     android:layout_height="match_parent"/>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Errors Chart -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/errorsChartCard"
                 android:layout_width="match_parent"
@@ -414,52 +290,42 @@
                     android:layout_height="match_parent"/>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Contributions Radar Chart -->
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/contributionsChartCard"
+                android:id="@+id/positivePlayChartCard"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
                 android:layout_marginBottom="12dp"
-                android:visibility="gone"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="#F7F7F7">
-                <com.github.mikephil.charting.charts.RadarChart
-                    android:id="@+id/contributionsChart"
+                android:visibility="gone">
+
+                <com.github.mikephil.charting.charts.BarChart
+                    android:id="@+id/positivePlayChart"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
+                    android:layout_height="match_parent" />
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Team Shooting Pie Chart -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/teamShootingChartCard"
+            <TextView
                 android:layout_width="match_parent"
-                android:layout_height="250dp"
-                android:layout_marginBottom="12dp"
-                android:visibility="gone"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="#F7F7F7">
-                <com.github.mikephil.charting.charts.PieChart
-                    android:id="@+id/teamShootingChart"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
-            </com.google.android.material.card.MaterialCardView>
+                android:layout_height="wrap_content"
+                android:text="Team Statistics"
+                android:textColor="#011933"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
 
-            <!-- Team Stats Scrollable Card -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/teamStatsCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                android:visibility="gone"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="4dp"
                 app:cardBackgroundColor="#F7F7F7">
+
                 <ScrollView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="12dp">
+
                     <TextView
                         android:id="@+id/tvTeamStats"
                         android:layout_width="match_parent"
@@ -468,6 +334,25 @@
                 </ScrollView>
             </com.google.android.material.card.MaterialCardView>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="24dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/returnButton"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:backgroundTint="#A0A0A0"
+                    android:text="Return to DashBoard"
+                    android:textColor="@android:color/white"
+                    android:onClick="onReturnClicked"/>
+
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -47,7 +47,6 @@ public class PlayerAdapterCourt extends RecyclerView.Adapter<PlayerAdapterCourt.
         holder.lblFullName.setText(fullName);
         holder.lblPosition.setText(player.getPlayer_position());
 
-        // Highlight selected item
         if (selectedPosition == position) {
             holder.cardView.setCardBackgroundColor(ContextCompat.getColor(context, R.color.highlight_blue));
         } else {
@@ -63,8 +62,6 @@ public class PlayerAdapterCourt extends RecyclerView.Adapter<PlayerAdapterCourt.
         });
     }
 
-
-
     @Override
     public int getItemCount() {
         return playerList.size();
@@ -77,7 +74,7 @@ public class PlayerAdapterCourt extends RecyclerView.Adapter<PlayerAdapterCourt.
 
         public PlayerViewHolder(@NonNull View itemView) {
             super(itemView);
-            cardView = (CardView) itemView; // cast here once
+            cardView = (CardView) itemView;
             lblFullName = itemView.findViewById(R.id.txtFullName);
             lblPosition = itemView.findViewById(R.id.txtPosition);
         }
@@ -99,5 +96,4 @@ public class PlayerAdapterCourt extends RecyclerView.Adapter<PlayerAdapterCourt.
     public List<Player> getPlayers() {
         return playerList;
     }
-
 }

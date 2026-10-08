@@ -21,96 +21,44 @@ import retrofit2.http.PATCH;
 import retrofit2.http.Query;
 import retrofit2.http.POST;
 
-// Supabase Api interface defines API endpoints for the Supabase API
-//Retrofit annotations are used to define the HTTP methods and parameters
-//The methods defined in this interface are used to make API calls
 public interface SuperbaseAPI {
-    //	@GET	Read data
-    //  @POST	Create (insert)
-    //	@PATCH	Partial update (modify)
-    //	@PUT	Full update (replace)
 
-    //Coach table
-    //Updates coach where coach_ID matches
     @PATCH("rest/v1/coach")
-    @Headers({"Prefer: return=representation"}) //Returns the full updated row in the response body
-    Call<List<Coach>> updateCoachProfile(
-            @Query("coach_ID") String idFilter,
-            @Body Coach updatedCoach);
+    @Headers({"Prefer: return=representation"})
+    Call<List<Coach>> updateCoachProfile(@Query("coach_ID") String idFilter, @Body Coach updatedCoach);
 
-    // GET coach by their ID
     @GET("rest/v1/coach")
-    Call<List<Coach>> getCoachById(
-            @Query("coach_ID") String idFilter);
+    Call<List<Coach>> getCoachById(@Query("coach_ID") String idFilter);
 
-
-    @GET("rest/v1/coach")//Calls the coach table
-    Call<List<Coach>> loginCoach(
-            @Query("coach_username") String username, //Adds coach_username   =eq.john to URL
-            @Query("coach_password") String password); // Adds coach_password =eq.john to URL
+    @GET("rest/v1/coach")
+    Call<List<Coach>> loginCoach(@Query("coach_username") String username, @Query("coach_password") String password);
 
     @POST("rest/v1/coach")
     @Headers({"Prefer: return=representation"})
-    Call<List<Coach>> registerCoach(
-            @Body Coach coach);
+    Call<List<Coach>> registerCoach(@Body Coach coach);
 
-    //Player table
-    @GET("rest/v1/player")
-    Call<List<Player>> getPlayers(
-            @Query("select") String select //first part of query (select, update, insert, etc.)
-    );
-
-    // GET player by ID
-    @GET("rest/v1/player")
-    Call<List<Player>> getPlayerById(@Query("player_ID") String idFilter);
+    @GET("rest/v1/player") Call<List<Player>> getPlayerById(@Query("player_ID") String idFilter);
 
     @POST("rest/v1/player")
     @Headers({"Prefer: return=representation"})
-    Call<List<Player>> registerPlayer(
-            @Body Player player); //Converts Player Java object into JSON and sends it as the request body.
+    Call<List<Player>> registerPlayer(@Body Player player);
 
-    @PATCH("rest/v1/player")
-    @Headers({"Prefer: return=representation"})
-    Call<List<Player>> updatePlayerProfile(
-            @Query("player_ID") String idFilter,
-            @Body Player updatedPlayer);
-
-    //Game table
     @POST("rest/v1/game")
     @Headers({"Prefer: return=representation"})
-    Call<List<Game>> setUpNewGame(
-            @Body Game game);
+    Call<List<Game>> setUpNewGame(@Body Game game);
 
-    //Court table
     @POST("rest/v1/court")
     @Headers({"Prefer: resolution=merge-duplicates", "Prefer: return=representation"})
-    Call<List<Court>> assignPlayerToCourt(
-            @Body Court assignment);
+    Call<List<Court>> assignPlayerToCourt(@Body Court assignment);
 
-    // Fetch players assigned to a specific game
-    // Court table - raw assignments
     @GET("rest/v1/court")
-    Call<List<Court>> getCourtAssignments(
-            @Query("game_id") String gameId // must pass "eq.123"
-    );
+    Call<List<Court>> getCourtAssignments(@Query("game_id") String gameId);
 
     @POST("rest/v1/player_action")
     Call<Void> recordPlayerAction(@Body PlayerAction action);
 
-    @DELETE("rest/v1/player_action")
-    Call<Void> deletePlayerAction(@Query("id") Long actionId);
-
-    // Game by ID
     @GET("rest/v1/game")
     Call<List<Game>> getGameById(@Query("game_ID") String gameIdFilter);
-
-    // Players by Game
-    @GET("rest/v1/player")
-    Call<List<Player>> getPlayersByGame(@Query("game_ID") String gameIdFilter);
-
-    // Player Actions by Game
-    @GET("rest/v1/player_action")
-    Call<List<PlayerAction>> getPlayerActionsByGame(@Query("game_ID") String gameIdFilter);
 
     @POST("rest/v1/player_coach")
     Call<PlayerCoach> assignPlayerToCoach(@Body PlayerCoach playerCoach);
@@ -118,40 +66,42 @@ public interface SuperbaseAPI {
     @POST("rest/v1/coach_game")
     Call<CoachGame> assignCoachToGame(@Body CoachGame coachGame);
 
-    // SuperbaseAPI.java
     @GET("rest/v1/player_stats")
     Call<List<PlayerStatsView>> getPlayerStatsByGame(@Query("game_ID") String gameIdFilter);
 
     @GET("rest/v1/game")
-    Call<List<Game>> getGamesForCoach(
-            @Query("select") String select,
-            @Query("coach_game.coach_ID") String coachIdEq
-    );
+    Call<List<Game>> getGamesForCoach(@Query("select") String select, @Query("coach_game.coach_ID") String coachIdEq);
 
     @GET("rest/v1/player")
-    Call<List<Player>> getPlayersForCoach(
-            @Query("select") String select,
-            @Query("player_coach.coach_ID") String coachIdEq
-    );
+    Call<List<Player>> getPlayersForCoach(@Query("select") String select, @Query("player_coach.coach_ID") String coachIdEq);
 
-    // Delete a game by ID
     @DELETE("rest/v1/game")
-    @Headers("Prefer: return=minimal") // Returns empty response
-    Call<Void> deleteGame(
-            @Query("game_ID") String idFilter // Pass like "eq.123"
-    );
+    @Headers("Prefer: return=minimal")
+    Call<Void> deleteGame(@Query("game_ID") String idFilter);
 
     @DELETE("rest/v1/player")
-    @Headers("Prefer: return=minimal") //Returns empty response
-    Call<Void> deletePlayer(
-            @Query("player_ID") String idFilter);
+    @Headers("Prefer: return=minimal")
+    Call<Void> deletePlayer(@Query("player_ID") String idFilter);
 
     @PATCH("rest/v1/game")
     @Headers({"Prefer: return=representation"})
-    Call<List<Game>> updateGameScore(
-            @Query("game_ID") String gameIdFilter,
-            @Body Map<String, Object> updates
-    );
+    Call<List<Game>> updateGameScore(@Query("game_ID") String gameIdFilter, @Body Map<String, Object> updates);
 
+    @GET("rest/v1/player_stats")
+    Call<List<PlayerStatsView>> getPlayerStatsByGameAndHalf(@Query("game_ID") String gameId, @Query("half") String half);
+
+    @PATCH("rest/v1/court")
+    Call<List<Court>> updateCourt(@Query("court_ID") String courtIdFilter, @Body Map<String, Object> updates);
+
+    @GET("rest/v1/player")
+    Call<List<Player>> getPlayersByIds(@Query("player_ID") String ids);
+
+    @PATCH("rest/v1/game")
+    @Headers({"Prefer: return=representation"})
+    Call<List<Game>> updateGame(@Query("game_ID") String id, @Body Game game);
+
+    @PATCH("rest/v1/player")
+    @Headers({"Prefer: return=representation"})
+    Call<List<Player>> updatePlayerProfile(@Query("player_ID") String idFilter, @Body Player updatedPlayer);
 }
 

@@ -34,7 +34,6 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
 
         holder.tvPlayerName.setText(stats.getPlayer_name());
 
-        // Scoring
         holder.tvGoal.setText("Goal: " + stats.getGoal());
         holder.tvPenaltyGoal.setText("Penalty Goal: " + stats.getPenalty_goal());
         holder.tvGoalMissed.setText("Goal Missed: " + stats.getGoal_missed());
@@ -42,7 +41,6 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         double successRate = totalShots > 0 ? ((double)(stats.getGoal() + stats.getPenalty_goal()) / totalShots) * 100 : 0;
         holder.tvSuccessRate.setText(String.format("Success Rate: %.1f%%", successRate));
 
-        // Positive Play
         holder.tvFor.setText("For: " + stats.getFor_());
         holder.tvAgainst.setText("Against: " + stats.getAgainst());
         holder.tvOffensiveRebound.setText("Offensive Rebound: " + stats.getOffensive_rebound());
@@ -52,7 +50,6 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
         holder.tvDeflection.setText("Deflection: " + stats.getDeflection());
         holder.tvIntercept.setText("Intercept: " + stats.getIntercept());
 
-        // Penalties & Errors
         holder.tvDropBall.setText("Drop Ball: " + stats.getDrop_ball());
         holder.tvHeldBall.setText("Held Ball: " + stats.getHeld_ball());
         holder.tvStepping.setText("Stepping: " + stats.getStepping());
@@ -63,7 +60,7 @@ public class PlayerStatsAdapter extends RecyclerView.Adapter<PlayerStatsAdapter.
 
     @Override
     public int getItemCount() {
-        return statsList.size();  // ✅ no +1 anymore
+        return statsList.size();
     }
 
     static class StatsViewHolder extends RecyclerView.ViewHolder {

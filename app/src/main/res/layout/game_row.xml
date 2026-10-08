@@ -16,7 +16,6 @@
         android:padding="16dp"
         android:gravity="center_vertical">
 
-        <!-- Game details container -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -31,7 +30,6 @@
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="#212121"/>
-
 
             <TextView
                 android:id="@+id/opposition"
@@ -50,10 +48,8 @@
                 android:textSize="14sp"
                 android:textColor="#555555"
                 android:paddingTop="2dp"/>
-
         </LinearLayout>
 
-        <!-- Button container -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

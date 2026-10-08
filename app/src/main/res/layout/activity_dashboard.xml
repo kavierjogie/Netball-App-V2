@@ -5,7 +5,6 @@
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
-    <!-- Top bar -->
     <LinearLayout
         android:id="@+id/topBar"
         android:layout_width="0dp"
@@ -17,16 +16,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
-
-        <ImageView
-            android:id="@+id/profileIcon"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="@drawable/circle_bg"
-            android:src="@drawable/ic_launcher_foreground"
-            android:padding="6dp"
-            android:contentDescription="Profile"
-            app:tint="@android:color/white" />
 
         <TextView
             android:id="@+id/dashboardTitle"
@@ -51,7 +40,6 @@
             android:textSize="14sp" />
     </LinearLayout>
 
-    <!-- Dashboard grid -->
     <GridLayout
         android:id="@+id/dashboardGrid"
         android:layout_width="0dp"
@@ -66,7 +54,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Player Profiles -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -93,7 +80,6 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- Manage Games -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -120,7 +106,6 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- Coach Profile -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -147,7 +132,6 @@
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- Set Up New Game -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="0dp"

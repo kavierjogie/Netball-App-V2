@@ -66,7 +66,6 @@ public class AddPlayer extends AppCompatActivity
         String strHeight = edtHeight.getText().toString().trim();
         String position = actvPosition.getText().toString().trim();
 
-        // Validate first name and surname
         if (firstName.isEmpty() || !firstName.matches("[a-zA-Z]+")) {
             Toast.makeText(this, "Please enter a valid first name", Toast.LENGTH_SHORT).show();
             return;
@@ -76,7 +75,6 @@ public class AddPlayer extends AppCompatActivity
             return;
         }
 
-        // Validate player number
         Integer playerNumber = null;
         if (!strPlayerNumber.isEmpty()) {
             try {
@@ -94,12 +92,11 @@ public class AddPlayer extends AppCompatActivity
             return;
         }
 
-        // Validate height
         Integer height = null;
         if (!strHeight.isEmpty()) {
             try {
                 height = Integer.parseInt(strHeight);
-                if (height < 50 || height > 250) { // arbitrary realistic height range
+                if (height < 50 || height > 250) {
                     Toast.makeText(this, "Please enter a valid height in cm", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -112,7 +109,6 @@ public class AddPlayer extends AppCompatActivity
             return;
         }
 
-        // Validate position
         String[] validPositions = {"GS", "GA", "WA", "C", "WD", "GD", "GK"};
         boolean isValidPosition = false;
         for (String p : validPositions) {
@@ -126,13 +122,11 @@ public class AddPlayer extends AppCompatActivity
             return;
         }
 
-        // Validate date of birth
         if (dateOfBirth.isEmpty()) {
             Toast.makeText(this, "Date of Birth cannot be empty", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // All validations passed, create player object
         Player player = new Player(firstName, surname, playerNumber, position, dateOfBirth, height);
 
         Call<List<Player>> call = api.registerPlayer(player);
@@ -142,7 +136,6 @@ public class AddPlayer extends AppCompatActivity
                 if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
                     Player registeredPlayer = response.body().get(0);
 
-                    // Get current coach ID
                     long coachId = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
                             .getLong("coach_ID", -1);
 
@@ -178,7 +171,6 @@ public class AddPlayer extends AppCompatActivity
             }
         });
     }
-
 
     public void onDOBClicked(View view) {
         UIUtils.showDatePicker(this, edtDOB);

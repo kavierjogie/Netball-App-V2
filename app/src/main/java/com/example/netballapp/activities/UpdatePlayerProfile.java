@@ -37,8 +37,6 @@ public class UpdatePlayerProfile extends AppCompatActivity
 
         currentPlayerId = getIntent().getLongExtra("player_id",-1);
 
-        Toast.makeText(this, "Player ID: " + currentPlayerId, Toast.LENGTH_SHORT).show();
-
         if (currentPlayerId == -1) {
             Toast.makeText(this, "Player ID not found.", Toast.LENGTH_SHORT).show();
             finish();
@@ -57,11 +55,8 @@ public class UpdatePlayerProfile extends AppCompatActivity
                 R.layout.dropdown_item, positions);
         actvPosition.setAdapter(adapter);
 
-
-        // Get the Retrofit API instance
         api = RetrofitClient.getClient().create(SuperbaseAPI.class);
 
-        // Load coach profile using Retrofit
         loadPlayerProfile(adapter);
     }
 
@@ -79,10 +74,9 @@ public class UpdatePlayerProfile extends AppCompatActivity
                     edtDOB.setText(player.getPlayer_DOB());
                     edtHeight.setText(String.valueOf(player.getPlayer_Height()));
 
-                    // Set the position in the AutoCompleteTextView
                     String playerPosition = player.getPlayer_position();
                     if (playerPosition != null && !playerPosition.isEmpty()) {
-                        actvPosition.setText(playerPosition, false); // false = don’t filter the dropdown
+                        actvPosition.setText(playerPosition, false);
                     }
                 } else {
                     Toast.makeText(UpdatePlayerProfile.this, "Player profile not found", Toast.LENGTH_SHORT).show();
@@ -104,7 +98,6 @@ public class UpdatePlayerProfile extends AppCompatActivity
         String dob = edtDOB.getText().toString().trim();
         String strHeight = edtHeight.getText().toString().trim();
 
-        // Check required fields
         if (firstname.isEmpty()) {
             Toast.makeText(this, "First Name is required", Toast.LENGTH_SHORT).show();
             return;
@@ -135,7 +128,6 @@ public class UpdatePlayerProfile extends AppCompatActivity
             return;
         }
 
-        // Validate numeric values
         Integer playerNumber = null;
         Integer height = null;
         try {
@@ -152,10 +144,8 @@ public class UpdatePlayerProfile extends AppCompatActivity
             return;
         }
 
-        // Create updated player object
         Player updatedPlayer = new Player(firstname, surname, playerNumber, position, dob, height);
 
-        // Call API to update
         Call<List<Player>> call = api.updatePlayerProfile("eq." + currentPlayerId, updatedPlayer);
         call.enqueue(new Callback<List<Player>>() {
             @Override
@@ -175,7 +165,6 @@ public class UpdatePlayerProfile extends AppCompatActivity
             }
         });
     }
-
 
     public void onBackClicked(View view) {
         Intent intent = new Intent(UpdatePlayerProfile.this, Player_Profiles.class);

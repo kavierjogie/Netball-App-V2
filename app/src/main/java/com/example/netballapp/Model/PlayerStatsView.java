@@ -1,4 +1,3 @@
-// PlayerStatsView.java
 package com.example.netballapp.Model;
 
 public class PlayerStatsView {
@@ -18,6 +17,20 @@ public class PlayerStatsView {
     private int obstruction;
     private int centre_pass_receive;
     private int goal_assist;
+
+    private int offensive_rebound;
+    private int defensive_rebound;
+    private int deflection;
+    private int intercept;
+    private String half;
+
+    public String getHalf() {
+        return half;
+    }
+
+    public void setHalf(String half) {
+        this.half = half;
+    }
 
     public long getGame_ID() {
         return game_ID;
@@ -98,11 +111,6 @@ public class PlayerStatsView {
     public int getIntercept() {
         return intercept;
     }
-
-    private int offensive_rebound;
-    private int defensive_rebound;
-    private int deflection;
-    private int intercept;
 
     public void setGame_ID(long game_ID) {
         this.game_ID = game_ID;
