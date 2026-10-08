@@ -59,10 +59,12 @@ public class UpdateGameDetails extends AppCompatActivity {
     }
 
     private void loadGameDetails(ArrayAdapter<String> adapter) {
+        UIUtils.setLoading(this, true);
         Call<List<Game>> call = api.getGameById("eq." + currentGameId);
         call.enqueue(new Callback<List<Game>>() {
             @Override
             public void onResponse(Call<List<Game>> call, Response<List<Game>> response) {
+                UIUtils.setLoading(UpdateGameDetails.this, false);
                 if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
                     Game game = response.body().get(0);
                     edtGameName.setText(game.getGame_Name());
@@ -80,7 +82,8 @@ public class UpdateGameDetails extends AppCompatActivity {
             }
             @Override
             public void onFailure(Call<List<Game>> call, Throwable t) {
-                Toast.makeText(UpdateGameDetails.this, "Failed to load game: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                UIUtils.setLoading(UpdateGameDetails.this, false);
+                UIUtils.networkError(UpdateGameDetails.this, () -> loadGameDetails(adapter));
             }
         });
     }
@@ -93,27 +96,27 @@ public class UpdateGameDetails extends AppCompatActivity {
         String type = actvGameType.getText().toString().trim();
 
         if (gameName.isEmpty()) {
-            Toast.makeText(this, "Game Name is required", Toast.LENGTH_SHORT).show();
+            UIUtils.fieldError(edtGameName, "Required");
             return;
         }
 
         if (opposition.isEmpty()) {
-            Toast.makeText(this, "Opposition is required", Toast.LENGTH_SHORT).show();
+            UIUtils.fieldError(edtOpposition, "Required");
             return;
         }
 
         if (gameDate.isEmpty()) {
-            Toast.makeText(this, "Game Date is required", Toast.LENGTH_SHORT).show();
+            UIUtils.fieldError(edtGameDate, "Required");
             return;
         }
 
         if (venue.isEmpty()) {
-            Toast.makeText(this, "Venue is required", Toast.LENGTH_SHORT).show();
+            UIUtils.fieldError(edtVenue, "Required");
             return;
         }
 
         if (type.isEmpty()) {
-            Toast.makeText(this, "Please select a Game Type", Toast.LENGTH_SHORT).show();
+            UIUtils.fieldError(actvGameType, "Choose a game type");
             return;
         }
 
@@ -136,12 +139,12 @@ public class UpdateGameDetails extends AppCompatActivity {
                     } catch (Exception e) {
                         errorMsg += " (failed to parse error)";
                     }
-                    Toast.makeText(UpdateGameDetails.this, errorMsg, Toast.LENGTH_LONG).show();
+                    UIUtils.showMessage(UpdateGameDetails.this, errorMsg);
                 }
             }
             @Override
             public void onFailure(Call<List<Game>> call, Throwable t) {
-                Toast.makeText(UpdateGameDetails.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                UIUtils.networkError(UpdateGameDetails.this, null);
             }
         });
 

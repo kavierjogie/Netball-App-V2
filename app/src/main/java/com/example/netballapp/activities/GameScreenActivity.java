@@ -11,20 +11,24 @@ import android.os.CountDownTimer;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.netballapp.Model.Court;
 import com.example.netballapp.Model.Game;
 import com.example.netballapp.Model.Player;
 import com.example.netballapp.Model.PlayerAction;
+import com.example.netballapp.Model.UIUtils;
 import com.example.netballapp.R;
 import com.example.netballapp.adapters.BenchAdapter;
 import com.example.netballapp.api.RetrofitClient;
 import com.example.netballapp.api.SuperbaseAPI;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -93,10 +97,17 @@ public class GameScreenActivity extends AppCompatActivity {
         endHalfButton.setEnabled(false);
         endHalfButton.setAlpha(0.5f);
 
-        endHalfButton.setOnClickListener(v -> {
-            stopTimer();
-            handleEndHalf();
-        });
+        endHalfButton.setOnClickListener(v -> new android.app.AlertDialog.Builder(this)
+                .setTitle(currentHalf == 1 ? "End 1st half?" : "End the game?")
+                .setMessage(currentHalf == 1
+                        ? "The clock stops and resets for the 2nd half."
+                        : "The clock stops and you'll go to the match analysis.")
+                .setPositiveButton(currentHalf == 1 ? "End half" : "End game", (d, w) -> {
+                    stopTimer();
+                    handleEndHalf();
+                })
+                .setNegativeButton("Keep playing", null)
+                .show());
 
         api = RetrofitClient.getClient().create(SuperbaseAPI.class);
 
@@ -106,41 +117,15 @@ public class GameScreenActivity extends AppCompatActivity {
 
         addOppositionScoreButton.setOnClickListener(v -> {
             if (!isTimerRunning) {
-                Toast.makeText(GameScreenActivity.this, "Start the game first!", Toast.LENGTH_SHORT).show();
+                UIUtils.showMessage(GameScreenActivity.this, "Start the game first");
                 return;
             }
-            int currentScore = Integer.parseInt(scoreOpposition.getText().toString());
-            currentScore++;
-            scoreOpposition.setText(String.valueOf(currentScore));
-
-            if (oppositionName.equals(currentCentrePassTeam)) {
-                currentCentrePassTeam = "Madibaz";
-            } else {
-                currentCentrePassTeam = oppositionName;
-            }
-            centrePassText.setText("Centre Pass: " + currentCentrePassTeam);
-
-            Map<String, Object> updates = new java.util.HashMap<>();
-            updates.put("game_opposition_score", currentScore);
-            updates.put("game_current_centre_pass_team", currentCentrePassTeam);
-
-            Call<List<Game>> call = api.updateGameScore("eq." + gameId, updates);
-            call.enqueue(new Callback<List<Game>>() {
-                @Override
-                public void onResponse(Call<List<Game>> call, Response<List<Game>> response) {
-                    if (!response.isSuccessful()) {
-                        Toast.makeText(GameScreenActivity.this,
-                                "Failed to update opposition score: " + response.code(),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                }
-                @Override
-                public void onFailure(Call<List<Game>> call, Throwable t) {
-                    Toast.makeText(GameScreenActivity.this,
-                            "Network error: " + t.getLocalizedMessage(),
-                            Toast.LENGTH_SHORT).show();
-                }
-            });
+            String previousCentrePass = currentCentrePassTeam;
+            changeScore(scoreOpposition, "game_opposition_score", 1, otherTeam(currentCentrePassTeam));
+            UIUtils.confirmHaptic(v);
+            Snackbar.make(v, oppositionName + " goal", Snackbar.LENGTH_LONG)
+                    .setAction("Undo", u -> changeScore(scoreOpposition, "game_opposition_score", -1, previousCentrePass))
+                    .show();
         });
     }
 
@@ -164,39 +149,33 @@ public class GameScreenActivity extends AppCompatActivity {
                 .show();
     }
 
-    private void updateScoreAndCentrePass() {
-        int currentScore = Integer.parseInt(scoreMadibaz.getText().toString());
-        currentScore++;
-        scoreMadibaz.setText(String.valueOf(currentScore));
+    private String otherTeam(String team) {
+        return "Madibaz".equals(team) ? oppositionName : "Madibaz";
+    }
 
-        if ("Madibaz".equals(currentCentrePassTeam)) {
-            currentCentrePassTeam = oppositionName;
-        } else {
-            currentCentrePassTeam = "Madibaz";
-        }
+    /** Updates a score on screen immediately, then saves it. delta is -1 when undoing. */
+    private void changeScore(TextView scoreView, String column, int delta, String centrePassTeam) {
+        int score = Integer.parseInt(scoreView.getText().toString()) + delta;
+        scoreView.setText(String.valueOf(score));
+        currentCentrePassTeam = centrePassTeam;
         centrePassText.setText("Centre Pass: " + currentCentrePassTeam);
 
         Long gameId = getSharedPreferences("MyAppPrefs", MODE_PRIVATE).getLong("game_ID", -1);
-        Map<String, Object> updates = new java.util.HashMap<>();
-        updates.put("game_madibaz_score", currentScore);
+        Map<String, Object> updates = new HashMap<>();
+        updates.put(column, score);
         updates.put("game_current_centre_pass_team", currentCentrePassTeam);
 
-        Call<List<Game>> call = api.updateGameScore("eq." + gameId, updates);
-        call.enqueue(new Callback<List<Game>>() {
+        api.updateGameScore("eq." + gameId, updates).enqueue(new Callback<List<Game>>() {
             @Override
             public void onResponse(Call<List<Game>> call, Response<List<Game>> response) {
                 if (!response.isSuccessful()) {
-                    Toast.makeText(GameScreenActivity.this,
-                            "Failed to update score/centre pass: " + response.code(),
-                            Toast.LENGTH_SHORT).show();
+                    UIUtils.showMessage(GameScreenActivity.this, "Score wasn't saved (error " + response.code() + ")");
                 }
             }
 
             @Override
             public void onFailure(Call<List<Game>> call, Throwable t) {
-                Toast.makeText(GameScreenActivity.this,
-                        "Network error: " + t.getLocalizedMessage(),
-                        Toast.LENGTH_SHORT).show();
+                UIUtils.networkError(GameScreenActivity.this, null);
             }
         });
     }
@@ -263,12 +242,14 @@ public class GameScreenActivity extends AppCompatActivity {
     }
 
     private void loadPlayers(Long gameId) {
+        UIUtils.setLoading(this, true);
         Call<List<Court>> call = api.getCourtAssignments("eq." + gameId);
         call.enqueue(new Callback<List<Court>>() {
             @Override
             public void onResponse(Call<List<Court>> call, Response<List<Court>> response) {
+                UIUtils.setLoading(GameScreenActivity.this, false);
                 if (!response.isSuccessful()) {
-                    Toast.makeText(GameScreenActivity.this, "Server error: " + response.code(), Toast.LENGTH_SHORT).show();
+                    UIUtils.showMessage(GameScreenActivity.this, "Couldn't load the court (error " + response.code() + ")");
                     return;
                 }
 
@@ -299,7 +280,8 @@ public class GameScreenActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<Court>> call, Throwable t) {
-                Toast.makeText(GameScreenActivity.this, "Network error: " + t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                UIUtils.setLoading(GameScreenActivity.this, false);
+                UIUtils.networkError(GameScreenActivity.this, () -> loadPlayers(gameId));
             }
         });
     }
@@ -335,7 +317,7 @@ public class GameScreenActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<Player>> call, Throwable t) {
-                Toast.makeText(GameScreenActivity.this, "Error loading bench players: " + t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                UIUtils.networkError(GameScreenActivity.this, () -> fetchBenchPlayersBatch(benchIds));
             }
         });
     }
@@ -346,7 +328,7 @@ public class GameScreenActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<List<Player>> call, Response<List<Player>> response) {
                 if (!response.isSuccessful()) {
-                    Toast.makeText(GameScreenActivity.this, "Error loading player: " + response.code(), Toast.LENGTH_SHORT).show();
+                    UIUtils.showMessage(GameScreenActivity.this, "Couldn't load a player (error " + response.code() + ")");
                     return;
                 }
 
@@ -355,35 +337,35 @@ public class GameScreenActivity extends AppCompatActivity {
                     Player player = players.get(0);
                     onCourtPlayers.add(player);
 
-                    String playerDisplay = getInitials(player) + "\n(" + pos + ")";
-
                     int resId = getResources().getIdentifier("pos" + pos, "id", getPackageName());
                     TextView posText = findViewById(resId);
                     if (posText != null) {
-                        posText.setText(playerDisplay);
-
-                        posText.setOnClickListener(v -> {
-                            if (!isTimerRunning) {
-                                Toast.makeText(GameScreenActivity.this, "Start the game first!", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
-                            showActionDialog(player, pos);
-                        });
-
-                        posText.setOnLongClickListener(v -> {
-                            showBenchSwapDialog(player, pos, courtId, posText);
-                            return true;
-                        });
+                        bindPosition(posText, player, pos, courtId);
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<List<Player>> call, Throwable t) {
-                Toast.makeText(GameScreenActivity.this, "Network error: " + t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                UIUtils.networkError(GameScreenActivity.this, () -> loadPlayerDetails(playerId, pos, courtId));
             }
         });
     }
+    private void bindPosition(TextView posText, Player player, String pos, Long courtId) {
+        posText.setText(getInitials(player) + "\n(" + pos + ")");
+        posText.setOnClickListener(v -> {
+            if (!isTimerRunning) {
+                UIUtils.showMessage(GameScreenActivity.this, "Start the game first");
+                return;
+            }
+            showActionDialog(player, pos);
+        });
+        posText.setOnLongClickListener(v -> {
+            showBenchSwapDialog(player, pos, courtId, posText);
+            return true;
+        });
+    }
+
     private boolean hasSubForPosition(String pos) {
         for (Player p : benchPlayers) {
             if (p.getPlayer_position() != null && p.getPlayer_position().equalsIgnoreCase(pos)) {
@@ -418,7 +400,7 @@ public class GameScreenActivity extends AppCompatActivity {
         }
 
         if (eligibleBench.isEmpty()) {
-            Toast.makeText(this, "No bench players for position " + pos, Toast.LENGTH_SHORT).show();
+            UIUtils.showMessage(this, "No bench players for " + pos);
             return;
         }
 
@@ -439,34 +421,38 @@ public class GameScreenActivity extends AppCompatActivity {
     }
 
     private void swapPlayer(Player currentPlayer, Player newPlayer, String pos, Long courtId, TextView posText) {
+        bindPosition(posText, newPlayer, pos, courtId);
+        onCourtPlayers.remove(currentPlayer);
+        onCourtPlayers.add(newPlayer);
+        benchPlayers.remove(newPlayer);
+        benchPlayers.add(currentPlayer);
+        UIUtils.confirmHaptic(posText);
+
+        Runnable revert = () -> {
+            bindPosition(posText, currentPlayer, pos, courtId);
+            onCourtPlayers.remove(newPlayer);
+            onCourtPlayers.add(currentPlayer);
+            benchPlayers.remove(currentPlayer);
+            benchPlayers.add(newPlayer);
+        };
+
         Map<String, Object> updates = new HashMap<>();
         updates.put("player_id", newPlayer.getPlayer_ID());
 
-        Call<List<Court>> call = api.updateCourt("eq." + courtId, updates);
-        call.enqueue(new Callback<List<Court>>() {
+        api.updateCourt("eq." + courtId, updates).enqueue(new Callback<List<Court>>() {
             @Override
             public void onResponse(Call<List<Court>> call, Response<List<Court>> response) {
-                if (response.isSuccessful()) {
-
-                    posText.setText(getInitials(newPlayer) + "\n(" + pos + ")");
-                    posText.setOnClickListener(v -> showActionDialog(newPlayer, pos));
-                    posText.setOnLongClickListener(v -> {
-                        showBenchSwapDialog(newPlayer, pos, courtId, posText);
-                        return true;
-                    });
-
-                    onCourtPlayers.remove(currentPlayer);
-                    onCourtPlayers.add(newPlayer);
-                    benchPlayers.remove(newPlayer);
-                    benchPlayers.add(currentPlayer);
-                } else {
-                    Toast.makeText(GameScreenActivity.this, "Failed to swap: " + response.code(), Toast.LENGTH_SHORT).show();
+                if (!response.isSuccessful()) {
+                    revert.run();
+                    UIUtils.showMessage(GameScreenActivity.this, "Substitution wasn't saved (error " + response.code() + ")");
                 }
             }
 
             @Override
             public void onFailure(Call<List<Court>> call, Throwable t) {
-                Toast.makeText(GameScreenActivity.this, "Network error: " + t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                revert.run();
+                UIUtils.networkError(GameScreenActivity.this,
+                        () -> swapPlayer(currentPlayer, newPlayer, pos, courtId, posText));
             }
         });
     }
@@ -486,12 +472,12 @@ public class GameScreenActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<List<Game>> call, Response<List<Game>> response) {
                 if (!response.isSuccessful()) {
-                    Toast.makeText(GameScreenActivity.this, "Failed to save coach note: " + response.code(), Toast.LENGTH_SHORT).show();
+                    UIUtils.showMessage(GameScreenActivity.this, "Coach note wasn't saved (error " + response.code() + ")");
                 }
             }
             @Override
             public void onFailure(Call<List<Game>> call, Throwable t) {
-                Toast.makeText(GameScreenActivity.this, "Network error: " + t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                UIUtils.networkError(GameScreenActivity.this, () -> saveCoachNoteOnHalfEnd());
             }
         });
     }
@@ -502,76 +488,99 @@ public class GameScreenActivity extends AppCompatActivity {
         return firstInitial + "." + lastInitial + ".";
     }
 
+    private static final String[] ACTIONS = {"Goal", "Penalty Goal", "Goal Missed", "For", "Against", "Drop Ball", "Held Ball", "Stepping", "Break", "Contact", "Obstruction", "Centre Pass Receive", "Goal Assist", "Offensive Rebound", "Defensive Rebound", "Deflection", "Intercept"};
+
     private void showActionDialog(Player player, String pos) {
-        String[] actions = {"Goal", "Penalty Goal", "Goal Missed", "For", "Against", "Drop Ball", "Held Ball", "Stepping", "Break", "Contact", "Obstruction", "Centre Pass Receive", "Goal Assist", "Offensive Rebound", "Defensive Rebound", "Deflection", "Intercept"};
+        BottomSheetDialog sheet = new BottomSheetDialog(this);
+        View content = getLayoutInflater().inflate(R.layout.sheet_player_actions, null);
+        ((TextView) content.findViewById(R.id.sheetTitle))
+                .setText("Record action for " + player.getPlayer_FirstName() + " " + player.getPlayer_Surname());
 
-        Map<String, Integer> stats = playerStats.get(player.getPlayer_ID());
-
-        String[] actionsWithTotals = new String[actions.length];
-        for (int i = 0; i < actions.length; i++) {
-            int count = 0;
-            if (stats != null) {
-                count = stats.getOrDefault(actions[i], 0);
+        ListView list = content.findViewById(R.id.actionList);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, new ArrayList<>());
+        Runnable refresh = () -> {
+            adapter.clear();
+            Map<String, Integer> stats = playerStats.get(player.getPlayer_ID());
+            for (String a : ACTIONS) {
+                adapter.add(a + " (" + (stats == null ? 0 : stats.getOrDefault(a, 0)) + ")");
             }
-            actionsWithTotals[i] = actions[i] + " (" + count + ")";
+        };
+        refresh.run();
+        list.setAdapter(adapter);
+        list.setOnItemClickListener((parent, view, which, id) -> recordAction(player, ACTIONS[which], list, refresh));
+
+        sheet.setContentView(content);
+        sheet.getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
+        sheet.show();
+    }
+
+    private void recordAction(Player player, String actionType, View anchor, Runnable refresh) {
+        String timestamp = timerText.getText().toString().split(" ")[0];
+        Long gameId = getSharedPreferences("MyAppPrefs", MODE_PRIVATE).getLong("game_ID", -1);
+        PlayerAction action = new PlayerAction(actionType, timestamp, "Half " + currentHalf, player.getPlayer_ID(), gameId);
+
+        boolean isGoal = actionType.equals("Goal") || actionType.equals("Penalty Goal");
+        String previousCentrePass = currentCentrePassTeam;
+
+        updatePlayerStats(action, 1);
+        playerActionHistory.putIfAbsent(player.getPlayer_ID(), new ArrayList<>());
+        playerActionHistory.get(player.getPlayer_ID()).add(action);
+        if (isGoal) {
+            changeScore(scoreMadibaz, "game_madibaz_score", 1, otherTeam(currentCentrePassTeam));
+            UIUtils.confirmHaptic(anchor);
         }
+        refresh.run();
 
-        new android.app.AlertDialog.Builder(this)
-                .setTitle("Record Action for " + player.getPlayer_FirstName() + " " + player.getPlayer_Surname())
-                .setItems(actionsWithTotals, (dialog, which) -> {
-                    String actionType = actions[which];
+        // Undo can be tapped before the insert returns its ID; the callback finishes the delete then.
+        boolean[] undone = {false};
+        api.recordPlayerAction(action).enqueue(new Callback<List<PlayerAction>>() {
+            @Override
+            public void onResponse(Call<List<PlayerAction>> call, Response<List<PlayerAction>> response) {
+                if (!response.isSuccessful() || response.body() == null || response.body().isEmpty()) {
+                    UIUtils.showMessage(anchor, actionType + " wasn't saved (error " + response.code() + ")");
+                    return;
+                }
+                action.setAction_ID(response.body().get(0).getAction_ID());
+                if (undone[0]) deletePlayerAction(action);
+            }
 
-                    String timestamp = timerText.getText().toString().split(" ")[0];
-                    String period = "Half " + currentHalf;
-                    Long gameId = getSharedPreferences("MyAppPrefs", MODE_PRIVATE).getLong("game_ID", -1);
+            @Override
+            public void onFailure(Call<List<PlayerAction>> call, Throwable t) {
+                UIUtils.networkError(anchor, null);
+            }
+        });
 
-                    PlayerAction action = new PlayerAction(
-                            actionType,
-                            timestamp,
-                            period,
-                            player.getPlayer_ID(),
-                            gameId
-                    );
-
-                    updatePlayerStats(action);
-
-                    playerActionHistory.putIfAbsent(player.getPlayer_ID(), new java.util.ArrayList<>());
-                    playerActionHistory.get(player.getPlayer_ID()).add(action);
-
-                    savePlayerAction(action);
-
-                    if (actionType.equals("Goal") || actionType.equals("Penalty Goal")) {
-                        updateScoreAndCentrePass();
-                    }
-
-                    showActionDialog(player, pos);
+        Snackbar.make(anchor, actionType + " \u00b7 " + getInitials(player), Snackbar.LENGTH_LONG)
+                .setAction("Undo", v -> {
+                    undone[0] = true;
+                    updatePlayerStats(action, -1);
+                    playerActionHistory.get(player.getPlayer_ID()).remove(action);
+                    // ponytail: restores the centre pass from before this goal; stale if another goal landed in between
+                    if (isGoal) changeScore(scoreMadibaz, "game_madibaz_score", -1, previousCentrePass);
+                    refresh.run();
+                    if (action.getAction_ID() != null) deletePlayerAction(action);
                 })
-                .setNegativeButton("Close", null)
                 .show();
     }
 
-    private void updatePlayerStats(PlayerAction action) {
-        playerStats.putIfAbsent(action.getPlayer_ID(), new java.util.HashMap<>());
+    private void updatePlayerStats(PlayerAction action, int delta) {
+        playerStats.putIfAbsent(action.getPlayer_ID(), new HashMap<>());
         Map<String, Integer> stats = playerStats.get(action.getPlayer_ID());
-
-        int currentCount = stats.getOrDefault(action.getAction_Type(), 0);
-        stats.put(action.getAction_Type(), currentCount + 1);
+        stats.put(action.getAction_Type(), stats.getOrDefault(action.getAction_Type(), 0) + delta);
     }
 
-    private void savePlayerAction(PlayerAction action) {
-        Call<Void> call = api.recordPlayerAction(action);
-        call.enqueue(new Callback<Void>()
-        {
+    private void deletePlayerAction(PlayerAction action) {
+        api.deletePlayerAction("eq." + action.getAction_ID()).enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
-                if (response.isSuccessful()) {
-                } else {
-                    Toast.makeText(GameScreenActivity.this, "Error saving action: " + response.code(), Toast.LENGTH_SHORT).show();
+                if (!response.isSuccessful()) {
+                    UIUtils.showMessage(GameScreenActivity.this, "Undo wasn't saved (error " + response.code() + ")");
                 }
             }
+
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                Toast.makeText(GameScreenActivity.this, "Network error: " + t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                UIUtils.networkError(GameScreenActivity.this, () -> deletePlayerAction(action));
             }
         });
     }

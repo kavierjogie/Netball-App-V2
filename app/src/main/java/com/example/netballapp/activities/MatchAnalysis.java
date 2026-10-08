@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.example.netballapp.Model.Game;
 import com.example.netballapp.Model.PlayerStatsView;
 import com.example.netballapp.R;
+import com.example.netballapp.Model.UIUtils;
 import com.example.netballapp.adapters.PlayerStatsAdapter;
 import com.example.netballapp.api.RetrofitClient;
 import com.example.netballapp.api.SuperbaseAPI;
@@ -118,18 +119,19 @@ public class MatchAnalysis extends AppCompatActivity {
 
                     loadPlayerStats(null);
                 } else {
-                    Toast.makeText(MatchAnalysis.this, "Failed to fetch game info", Toast.LENGTH_SHORT).show();
+                    UIUtils.showMessage(MatchAnalysis.this, "Failed to fetch game info");
                 }
             }
 
             @Override
             public void onFailure(Call<List<Game>> call, Throwable t) {
-                Toast.makeText(MatchAnalysis.this, "Error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                UIUtils.networkError(MatchAnalysis.this, () -> loadGameData(gameID));
             }
         });
     }
 
     private void loadPlayerStats(@Nullable Integer half) {
+        UIUtils.setLoading(this, true);
         Call<List<PlayerStatsView>> call;
         if (half == null) {
             call = api.getPlayerStatsByGame("eq." + gameID);
@@ -140,6 +142,7 @@ public class MatchAnalysis extends AppCompatActivity {
         call.enqueue(new Callback<List<PlayerStatsView>>() {
             @Override
             public void onResponse(Call<List<PlayerStatsView>> call, Response<List<PlayerStatsView>> response) {
+                UIUtils.setLoading(MatchAnalysis.this, false);
                 if (response.isSuccessful() && response.body() != null) {
                     currentStatsList = response.body();
                     updatePlayerList(getSelectedHalf());
@@ -149,7 +152,8 @@ public class MatchAnalysis extends AppCompatActivity {
             }
             @Override
             public void onFailure(Call<List<PlayerStatsView>> call, Throwable t) {
-                Toast.makeText(MatchAnalysis.this, "Failed to load stats", Toast.LENGTH_SHORT).show();
+                UIUtils.setLoading(MatchAnalysis.this, false);
+                UIUtils.networkError(MatchAnalysis.this, () -> loadPlayerStats(half));
             }
         });
     }

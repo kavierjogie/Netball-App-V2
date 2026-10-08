@@ -17,6 +17,7 @@ import com.example.netballapp.Model.Court;
 import com.example.netballapp.Model.Player;
 import com.example.netballapp.Model.PlayerCoach;
 import com.example.netballapp.R;
+import com.example.netballapp.Model.UIUtils;
 import com.example.netballapp.adapters.PlayerAdapter;
 import com.example.netballapp.adapters.PlayerAdapterCourt;
 import com.example.netballapp.api.RetrofitClient;
@@ -80,12 +81,12 @@ public class SetUpCourtActivity extends AppCompatActivity
 
     private void assignPlayerToPosition(String position) {
         if (selectedPlayer == null) {
-            Toast.makeText(this, "Please select a player first.", Toast.LENGTH_SHORT).show();
+            UIUtils.showMessage(this, "Please select a player first.");
             return;
         }
 
         if (!position.equals(selectedPlayer.getPlayer_position())) {
-            Toast.makeText(this, selectedPlayer.getPlayer_FirstName() + " can only play " + selectedPlayer.getPlayer_position(), Toast.LENGTH_SHORT).show();
+            UIUtils.showMessage(this, selectedPlayer.getPlayer_FirstName() + " can only play " + selectedPlayer.getPlayer_position());
             return;
         }
 
@@ -112,13 +113,13 @@ public class SetUpCourtActivity extends AppCompatActivity
                     selectedPlayer = null;
 
                 } else {
-                   // Toast.makeText(SetUpCourtActivity.this, "Assignment failed: " + response.code(), Toast.LENGTH_SHORT).show();
+                   // UIUtils.showMessage(SetUpCourtActivity.this, "Assignment failed: " + response.code());
                 }
             }
 
             @Override
             public void onFailure(Call<List<Court>> call, Throwable t) {
-                Toast.makeText(SetUpCourtActivity.this, "API error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                UIUtils.networkError(SetUpCourtActivity.this, null);
             }
         });
     }
@@ -130,6 +131,7 @@ public class SetUpCourtActivity extends AppCompatActivity
     }
 
     private void loadPlayersFromSupabase() {
+        UIUtils.setLoading(this, true);
         long coachId = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
                 .getLong("coach_ID", -1);
         if (coachId == -1) {
@@ -142,18 +144,20 @@ public class SetUpCourtActivity extends AppCompatActivity
         call.enqueue(new Callback<List<Player>>() {
             @Override
             public void onResponse(Call<List<Player>> call, Response<List<Player>> response) {
+                UIUtils.setLoading(SetUpCourtActivity.this, false);
                 if (response.isSuccessful() && response.body() != null) {
                     List<Player> playerList = response.body();
                     adapter = new PlayerAdapterCourt(playerList, SetUpCourtActivity.this, player -> {selectedPlayer = player;
                     });
                     lstPlayers.setAdapter(adapter);
                 } else {
-                    Toast.makeText(SetUpCourtActivity.this, "Failed to load players", Toast.LENGTH_SHORT).show();
+                    UIUtils.showMessage(SetUpCourtActivity.this, "Failed to load players");
                 }
             }
             @Override
             public void onFailure(Call<List<Player>> call, Throwable t) {
-                Toast.makeText(SetUpCourtActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                UIUtils.setLoading(SetUpCourtActivity.this, false);
+                UIUtils.networkError(SetUpCourtActivity.this, () -> loadPlayersFromSupabase());
             }
         });
     }
@@ -176,7 +180,7 @@ public class SetUpCourtActivity extends AppCompatActivity
             @Override
             public void onResponse(Call<List<Court>> call, Response<List<Court>> response) {
                 if (!response.isSuccessful()) {
-                    Toast.makeText(SetUpCourtActivity.this, "Server error: " + response.code(), Toast.LENGTH_SHORT).show();
+                    UIUtils.showMessage(SetUpCourtActivity.this, "Server error: " + response.code());
                     return;
                 }
 
@@ -193,7 +197,7 @@ public class SetUpCourtActivity extends AppCompatActivity
 
             @Override
             public void onFailure(Call<List<Court>> call, Throwable t) {
-                Toast.makeText(SetUpCourtActivity.this, "Network error: " + t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                UIUtils.networkError(SetUpCourtActivity.this, () -> loadPlayers(gameId));
             }
         });
     }
@@ -204,7 +208,7 @@ public class SetUpCourtActivity extends AppCompatActivity
             @Override
             public void onResponse(Call<List<Player>> call, Response<List<Player>> response) {
                 if (!response.isSuccessful()) {
-                    Toast.makeText(SetUpCourtActivity.this, "Error loading player: " + response.code(), Toast.LENGTH_SHORT).show();
+                    UIUtils.showMessage(SetUpCourtActivity.this, "Error loading player: " + response.code());
                     return;
                 }
 
@@ -223,7 +227,7 @@ public class SetUpCourtActivity extends AppCompatActivity
 
             @Override
             public void onFailure(Call<List<Player>> call, Throwable t) {
-                Toast.makeText(SetUpCourtActivity.this, "Network error: " + t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                UIUtils.networkError(SetUpCourtActivity.this, () -> loadPlayerDetails(playerId, pos));
             }
         });
     }
@@ -237,7 +241,7 @@ public class SetUpCourtActivity extends AppCompatActivity
 
     public void onNextClicked(View view) {
         if (!isTeamComplete()) {
-            Toast.makeText(this, "Please assign all 7 positions before continuing.", Toast.LENGTH_SHORT).show();
+            UIUtils.showMessage(this, "Please assign all 7 positions before continuing.");
             return;
         }
 

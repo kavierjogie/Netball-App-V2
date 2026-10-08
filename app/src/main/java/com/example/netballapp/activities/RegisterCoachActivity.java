@@ -15,6 +15,7 @@ import com.example.netballapp.Model.Coach;
 import com.example.netballapp.Model.Player;
 import com.example.netballapp.Model.PlayerCoach;
 import com.example.netballapp.R;
+import com.example.netballapp.Model.UIUtils;
 import com.example.netballapp.api.RetrofitClient;
 import com.example.netballapp.api.SuperbaseAPI;
 
@@ -65,13 +66,11 @@ public class RegisterCoachActivity extends AppCompatActivity {
         String confirmPassword = edtConfirmPassword.getText().toString().trim();
         String role = actvRole.getText().toString().trim();
 
-        if (firstName.isEmpty() || username.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Please fill all required fields", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
+        if (firstName.isEmpty()) { UIUtils.fieldError(edtFirstName, "Required"); return; }
+        if (username.isEmpty()) { UIUtils.fieldError(edtUsername, "Required"); return; }
+        if (password.isEmpty()) { UIUtils.fieldError(edtPassword, "Required"); return; }
         if (!password.equals(confirmPassword)) {
-            Toast.makeText(this, "Passwords do not match!", Toast.LENGTH_SHORT).show();
+            UIUtils.fieldError(edtConfirmPassword, "Passwords don't match");
             return;
         }
 
@@ -97,13 +96,13 @@ public class RegisterCoachActivity extends AppCompatActivity {
                     startActivity(new Intent(RegisterCoachActivity.this, LoginActivity.class));
                     finish();
                 } else {
-                    Toast.makeText(RegisterCoachActivity.this, "Registration failed. Username might already exist.", Toast.LENGTH_SHORT).show();
+                    UIUtils.fieldError(edtUsername, "That username may already be taken");
                 }
             }
 
             @Override
             public void onFailure(Call<List<Coach>> call, Throwable t) {
-                Toast.makeText(RegisterCoachActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                UIUtils.networkError(RegisterCoachActivity.this, null);
             }
         });
     }
@@ -145,17 +144,13 @@ public class RegisterCoachActivity extends AppCompatActivity {
                         });
 
                     } else {
-                        Toast.makeText(RegisterCoachActivity.this,
-                                "Failed to insert player: " + p.getPlayer_FirstName(),
-                                Toast.LENGTH_SHORT).show();
+                        UIUtils.showMessage(RegisterCoachActivity.this, "Failed to insert player: " + p.getPlayer_FirstName());
                     }
                 }
 
                 @Override
                 public void onFailure(Call<List<Player>> call, Throwable t) {
-                    Toast.makeText(RegisterCoachActivity.this,
-                            "Error inserting player: " + t.getMessage(),
-                            Toast.LENGTH_SHORT).show();
+                    UIUtils.networkError(RegisterCoachActivity.this, null);
                 }
             });
         }

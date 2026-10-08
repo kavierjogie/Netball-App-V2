@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.example.netballapp.Model.Court;
 import com.example.netballapp.Model.Player;
 import com.example.netballapp.R;
+import com.example.netballapp.Model.UIUtils;
 import com.example.netballapp.adapters.PlayerAdapterCourt;
 import com.example.netballapp.api.RetrofitClient;
 import com.example.netballapp.api.SuperbaseAPI;
@@ -75,7 +76,7 @@ public class SetBenchPlayersActivity extends AppCompatActivity {
 
     private void assignPlayerToBench(LinearLayout container, String section) {
         if (selectedPlayer == null) {
-            Toast.makeText(this, "Please select a player first.", Toast.LENGTH_SHORT).show();
+            UIUtils.showMessage(this, "Please select a player first.");
             return;
         }
 
@@ -95,12 +96,12 @@ public class SetBenchPlayersActivity extends AppCompatActivity {
         }
 
         if (!valid) {
-            Toast.makeText(this, "This player cannot be assigned to " + section + " bench!", Toast.LENGTH_SHORT).show();
+            UIUtils.showMessage(this, "This player cannot be assigned to " + section + " bench!");
             return;
         }
 
         if (totalBenchCount >= MAX_TOTAL_BENCH) {
-            Toast.makeText(this, "All bench positions are full!", Toast.LENGTH_SHORT).show();
+            UIUtils.showMessage(this, "All bench positions are full!");
             return;
         }
 
@@ -132,7 +133,7 @@ public class SetBenchPlayersActivity extends AppCompatActivity {
                     adapter.removePlayer(selectedPlayer);
                     selectedPlayer = null;
                 } else {
-                    Toast.makeText(SetBenchPlayersActivity.this, "Assignment failed: " + response.code(), Toast.LENGTH_SHORT).show();
+                    UIUtils.showMessage(SetBenchPlayersActivity.this, "Assignment failed: " + response.code());
                     switch (section) {
                         case "ATTACK": attackBenchCount--; break;
                         case "DEFENCE": defenceBenchCount--; break;
@@ -144,7 +145,7 @@ public class SetBenchPlayersActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<Court>> call, Throwable t) {
-                Toast.makeText(SetBenchPlayersActivity.this, "API error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                UIUtils.networkError(SetBenchPlayersActivity.this, null);
                 switch (section) {
                     case "ATTACK": attackBenchCount--; break;
                     case "DEFENCE": defenceBenchCount--; break;

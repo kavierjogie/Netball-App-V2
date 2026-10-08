@@ -16,6 +16,7 @@ import com.example.netballapp.Model.Player;
 import com.example.netballapp.Model.SessionManager;
 import com.example.netballapp.adapters.PlayerAdapter;
 import com.example.netballapp.R;
+import com.example.netballapp.Model.UIUtils;
 import com.example.netballapp.api.RetrofitClient;
 import com.example.netballapp.api.SuperbaseAPI;
 
@@ -43,9 +44,9 @@ public class Player_Profiles extends AppCompatActivity {
 
         adapter = new PlayerAdapter(this, players, (player, position) ->
                 new AlertDialog.Builder(Player_Profiles.this)
-                        .setTitle("Confirm Deletion")
-                        .setMessage("Delete " + player.getPlayer_FirstName() + "?")
-                        .setPositiveButton("Yes", (dialog, which) -> {
+                        .setTitle("Delete " + player.getPlayer_FirstName() + " " + player.getPlayer_Surname() + "?")
+                        .setMessage("Their profile is removed permanently.")
+                        .setPositiveButton("Delete player", (dialog, which) -> {
                             deletePlayerFromAPI(player.getPlayer_ID(), position);
                         })
                         .setNegativeButton("Cancel", null)
@@ -59,6 +60,7 @@ public class Player_Profiles extends AppCompatActivity {
     }
 
     private void loadPlayersFromAPI() {
+        UIUtils.setLoading(this, true);
         long coachId = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
                 .getLong("coach_ID", -1);
 
@@ -67,6 +69,7 @@ public class Player_Profiles extends AppCompatActivity {
         call.enqueue(new Callback<List<Player>>() {
             @Override
             public void onResponse(Call<List<Player>> call, Response<List<Player>> response) {
+                UIUtils.setLoading(Player_Profiles.this, false);
                 if (response.isSuccessful() && response.body() != null) {
                     players.clear();
                     players.addAll(response.body());
@@ -74,13 +77,14 @@ public class Player_Profiles extends AppCompatActivity {
 
                     toggleEmptyView();
                 } else {
-                    Log.e("API", "Unsuccessful: " + response.code());
+                    UIUtils.showMessage(Player_Profiles.this, "Couldn't load players (error " + response.code() + ")");
                 }
             }
 
             @Override
             public void onFailure(Call<List<Player>> call, Throwable t) {
-                Log.e("API", "Failed: " + t.getMessage());
+                UIUtils.setLoading(Player_Profiles.this, false);
+                UIUtils.networkError(Player_Profiles.this, () -> loadPlayersFromAPI());
             }
         });
     }
@@ -104,14 +108,14 @@ public class Player_Profiles extends AppCompatActivity {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
-                    Toast.makeText(Player_Profiles.this, errorMsg, Toast.LENGTH_LONG).show();
+                    UIUtils.showMessage(Player_Profiles.this, "Couldn't delete the player (error " + response.code() + ")");
                     Log.e("API_DELETE_PLAYER", errorMsg);
                 }
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                Toast.makeText(Player_Profiles.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                UIUtils.networkError(Player_Profiles.this, null);
                 Log.e("API_DELETE_PLAYER", "Failure", t);
             }
         });

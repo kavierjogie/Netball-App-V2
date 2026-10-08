@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.example.netballapp.Model.Coach;
 import com.example.netballapp.Model.SessionManager;
 import com.example.netballapp.R;
+import com.example.netballapp.Model.UIUtils;
 import com.example.netballapp.api.RetrofitClient;
 import com.example.netballapp.api.SuperbaseAPI;
 
@@ -57,10 +58,12 @@ public class ManageCoachProfile extends AppCompatActivity {
         loadCoachProfile(adapter);
     }
     private void loadCoachProfile(ArrayAdapter<String> adapter) {
+        UIUtils.setLoading(this, true);
         Call<List<Coach>> call = api.getCoachById("eq." + currentCoachId);
         call.enqueue(new Callback<List<Coach>>() {
             @Override
             public void onResponse(Call<List<Coach>> call, Response<List<Coach>> response) {
+                UIUtils.setLoading(ManageCoachProfile.this, false);
                 if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
                     Coach coach = response.body().get(0);
                     edtFirstName.setText(coach.getCoach_firstname());
@@ -76,7 +79,8 @@ public class ManageCoachProfile extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<Coach>> call, Throwable t) {
-                Toast.makeText(ManageCoachProfile.this, "Failed to load profile: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                UIUtils.setLoading(ManageCoachProfile.this, false);
+                UIUtils.networkError(ManageCoachProfile.this, () -> loadCoachProfile(adapter));
             }
         });
     }
@@ -89,7 +93,7 @@ public class ManageCoachProfile extends AppCompatActivity {
         String confirmPassword = edtConfirmPassword.getText().toString().trim();
 
         if (!password.equals(confirmPassword)) {
-            Toast.makeText(this, "Passwords do not match!", Toast.LENGTH_SHORT).show();
+            UIUtils.fieldError(edtConfirmPassword, "Passwords don't match");
             return;
         }
 
@@ -102,13 +106,13 @@ public class ManageCoachProfile extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
                     Toast.makeText(ManageCoachProfile.this, "Profile updated!", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(ManageCoachProfile.this, "Update failed.", Toast.LENGTH_SHORT).show();
+                    UIUtils.showMessage(ManageCoachProfile.this, "Update failed.");
                 }
             }
 
             @Override
             public void onFailure(Call<List<Coach>> call, Throwable t) {
-                Toast.makeText(ManageCoachProfile.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                UIUtils.networkError(ManageCoachProfile.this, null);
             }
         });
     }

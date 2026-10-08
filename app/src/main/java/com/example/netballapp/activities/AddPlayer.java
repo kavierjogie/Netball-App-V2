@@ -67,11 +67,11 @@ public class AddPlayer extends AppCompatActivity
         String position = actvPosition.getText().toString().trim();
 
         if (firstName.isEmpty() || !firstName.matches("[a-zA-Z]+")) {
-            Toast.makeText(this, "Please enter a valid first name", Toast.LENGTH_SHORT).show();
+            UIUtils.fieldError(edtFirstName, "Letters only");
             return;
         }
         if (surname.isEmpty() || !surname.matches("[a-zA-Z]+")) {
-            Toast.makeText(this, "Please enter a valid surname", Toast.LENGTH_SHORT).show();
+            UIUtils.fieldError(edtSurname, "Letters only");
             return;
         }
 
@@ -80,15 +80,15 @@ public class AddPlayer extends AppCompatActivity
             try {
                 playerNumber = Integer.parseInt(strPlayerNumber);
                 if (playerNumber <= 0) {
-                    Toast.makeText(this, "Player number must be greater than 0", Toast.LENGTH_SHORT).show();
+                    UIUtils.fieldError(edtPlayerNumber, "Must be greater than 0");
                     return;
                 }
             } catch (NumberFormatException e) {
-                Toast.makeText(this, "Please enter a valid player number", Toast.LENGTH_SHORT).show();
+                UIUtils.fieldError(edtPlayerNumber, "Enter a whole number");
                 return;
             }
         } else {
-            Toast.makeText(this, "Player number field is empty", Toast.LENGTH_SHORT).show();
+            UIUtils.fieldError(edtPlayerNumber, "Required");
             return;
         }
 
@@ -97,15 +97,15 @@ public class AddPlayer extends AppCompatActivity
             try {
                 height = Integer.parseInt(strHeight);
                 if (height < 50 || height > 250) {
-                    Toast.makeText(this, "Please enter a valid height in cm", Toast.LENGTH_SHORT).show();
+                    UIUtils.fieldError(edtHeight, "Enter a height between 50 and 250 cm");
                     return;
                 }
             } catch (NumberFormatException e) {
-                Toast.makeText(this, "Please enter a valid height", Toast.LENGTH_SHORT).show();
+                UIUtils.fieldError(edtHeight, "Enter a whole number in cm");
                 return;
             }
         } else {
-            Toast.makeText(this, "Height field is empty", Toast.LENGTH_SHORT).show();
+            UIUtils.fieldError(edtHeight, "Required");
             return;
         }
 
@@ -118,12 +118,12 @@ public class AddPlayer extends AppCompatActivity
             }
         }
         if (!isValidPosition) {
-            Toast.makeText(this, "Please select a valid position", Toast.LENGTH_SHORT).show();
+            UIUtils.fieldError(actvPosition, "Choose a position");
             return;
         }
 
         if (dateOfBirth.isEmpty()) {
-            Toast.makeText(this, "Date of Birth cannot be empty", Toast.LENGTH_SHORT).show();
+            UIUtils.fieldError(edtDOB, "Required");
             return;
         }
 
@@ -160,14 +160,14 @@ public class AddPlayer extends AppCompatActivity
                     startActivity(new Intent(AddPlayer.this, Player_Profiles.class));
                     finish();
                 } else {
-                    Toast.makeText(AddPlayer.this, "Registration failed. Username might already exist.", Toast.LENGTH_SHORT).show();
+                    UIUtils.showMessage(AddPlayer.this, "Couldn't add the player (error " + response.code() + ")");
                 }
             }
 
 
             @Override
             public void onFailure(Call<List<Player>> call, Throwable t) {
-                Toast.makeText(AddPlayer.this, "Error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                UIUtils.networkError(AddPlayer.this, null);
             }
         });
     }

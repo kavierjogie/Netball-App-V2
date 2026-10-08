@@ -63,10 +63,10 @@ public class SetUpNewGameActivity extends AppCompatActivity {
         String gameType = actvGameType.getText().toString().trim();
 
 
-        if (gameName.isEmpty() || oppositionName.isEmpty() || gameVenue.isEmpty() || gameDate.isEmpty()) {
-            Toast.makeText(this, "Please fill all required fields", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        if (gameName.isEmpty()) { UIUtils.fieldError(edtGameName, "Required"); return; }
+        if (oppositionName.isEmpty()) { UIUtils.fieldError(edtOppositionName, "Required"); return; }
+        if (gameDate.isEmpty()) { UIUtils.fieldError(edtGameDate, "Required"); return; }
+        if (gameVenue.isEmpty()) { UIUtils.fieldError(edtGameVenue, "Required"); return; }
 
         Game game = new Game(gameName,oppositionName,gameVenue,gameDate,gameType,0,0,0,"","");
 
@@ -112,13 +112,11 @@ public class SetUpNewGameActivity extends AppCompatActivity {
 
                 else
                 {
-                    Toast.makeText(SetUpNewGameActivity.this, "Set Up Game failed.", Toast.LENGTH_SHORT).show();
-                    Toast.makeText(SetUpNewGameActivity.this, response.toString(), Toast.LENGTH_SHORT).show();
+                    UIUtils.showMessage(SetUpNewGameActivity.this, "Couldn't create the game (error " + response.code() + ")");
                     try {
                         if (response.errorBody() != null) {
                             String errorBody = response.errorBody().string();
                             Log.e("API_ERROR", "Error Body: " + errorBody);
-                            Toast.makeText(SetUpNewGameActivity.this, "Error: " + errorBody, Toast.LENGTH_LONG).show();
                         } else {
                             Log.e("API_ERROR", "No error body returned");
                         }
@@ -130,7 +128,7 @@ public class SetUpNewGameActivity extends AppCompatActivity {
             }
             @Override
             public void onFailure(Call<List<Game>> call, Throwable t) {
-                Toast.makeText(SetUpNewGameActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                UIUtils.networkError(SetUpNewGameActivity.this, null);
             }
         });
     }

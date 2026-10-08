@@ -55,7 +55,12 @@ public interface SuperbaseAPI {
     Call<List<Court>> getCourtAssignments(@Query("game_id") String gameId);
 
     @POST("rest/v1/player_action")
-    Call<Void> recordPlayerAction(@Body PlayerAction action);
+    @Headers({"Prefer: return=representation"})
+    Call<List<PlayerAction>> recordPlayerAction(@Body PlayerAction action);
+
+    @DELETE("rest/v1/player_action")
+    @Headers("Prefer: return=minimal")
+    Call<Void> deletePlayerAction(@Query("action_ID") String idFilter);
 
     @GET("rest/v1/game")
     Call<List<Game>> getGameById(@Query("game_ID") String gameIdFilter);

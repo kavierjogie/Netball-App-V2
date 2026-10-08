@@ -24,6 +24,10 @@ public class PlayerAction {
         return action_ID;
     }
 
+    public void setAction_ID(Long action_ID) {
+        this.action_ID = action_ID;
+    }
+
     public Long getPlayer_ID() {
         return player_ID;
     }

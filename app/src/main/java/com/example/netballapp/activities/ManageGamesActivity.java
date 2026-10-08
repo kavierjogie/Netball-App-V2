@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.example.netballapp.Model.Game;
 import com.example.netballapp.Model.SessionManager;
 import com.example.netballapp.R;
+import com.example.netballapp.Model.UIUtils;
 import com.example.netballapp.adapters.GameAdapter;
 import com.example.netballapp.api.RetrofitClient;
 import com.example.netballapp.api.SuperbaseAPI;
@@ -63,9 +64,9 @@ public class ManageGamesActivity extends AppCompatActivity {
             @Override
             public void onDelete(Game game, int position) {
                 new AlertDialog.Builder(ManageGamesActivity.this)
-                        .setTitle("Confirm Deletion")
-                        .setMessage("Delete " + game.getGame_Name() + "?")
-                        .setPositiveButton("Yes", (dialog, which) -> deleteGameFromAPI(game.getGame_ID(), position))
+                        .setTitle("Delete " + game.getGame_Name() + "?")
+                        .setMessage("The game and its records are removed permanently.")
+                        .setPositiveButton("Delete game", (dialog, which) -> deleteGameFromAPI(game.getGame_ID(), position))
                         .setNegativeButton("Cancel", null)
                         .show();
             }
@@ -79,6 +80,7 @@ public class ManageGamesActivity extends AppCompatActivity {
     }
 
     private void loadGamesFromAPI() {
+        UIUtils.setLoading(this, true);
         long coachId = getSharedPreferences("MyAppPrefs", MODE_PRIVATE)
                 .getLong("coach_ID", -1);
 
@@ -87,18 +89,20 @@ public class ManageGamesActivity extends AppCompatActivity {
         call.enqueue(new Callback<List<Game>>() {
             @Override
             public void onResponse(Call<List<Game>> call, Response<List<Game>> response) {
+                UIUtils.setLoading(ManageGamesActivity.this, false);
                 if (response.isSuccessful() && response.body() != null) {
                     games.clear();
                     games.addAll(response.body());
                     adapter.notifyDataSetChanged();
                 } else {
-                    Log.e("API", "Unsuccessful: " + response.code());
+                    UIUtils.showMessage(ManageGamesActivity.this, "Couldn't load games (error " + response.code() + ")");
                 }
             }
 
             @Override
             public void onFailure(Call<List<Game>> call, Throwable t) {
-                Log.e("API", "Failed: " + t.getMessage());
+                UIUtils.setLoading(ManageGamesActivity.this, false);
+                UIUtils.networkError(ManageGamesActivity.this, () -> loadGamesFromAPI());
             }
         });
     }
@@ -113,13 +117,13 @@ public class ManageGamesActivity extends AppCompatActivity {
                     adapter.notifyDataSetChanged();
                     Toast.makeText(ManageGamesActivity.this, "Game deleted", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(ManageGamesActivity.this, "Failed to delete game", Toast.LENGTH_SHORT).show();
+                    UIUtils.showMessage(ManageGamesActivity.this, "Failed to delete game");
                 }
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                Toast.makeText(ManageGamesActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                UIUtils.networkError(ManageGamesActivity.this, null);
             }
         });
     }

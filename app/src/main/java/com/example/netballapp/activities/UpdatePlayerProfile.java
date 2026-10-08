@@ -62,10 +62,12 @@ public class UpdatePlayerProfile extends AppCompatActivity
 
     private void loadPlayerProfile(ArrayAdapter<String> adapter)
     {
+        UIUtils.setLoading(this, true);
         Call<List<Player>> call = api.getPlayerById("eq." + currentPlayerId);
         call.enqueue(new Callback<List<Player>>() {
             @Override
             public void onResponse(Call<List<Player>> call, Response<List<Player>> response) {
+                UIUtils.setLoading(UpdatePlayerProfile.this, false);
                 if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
                     Player player = response.body().get(0);
                     edtFirstName.setText(player.getPlayer_FirstName());
@@ -85,7 +87,8 @@ public class UpdatePlayerProfile extends AppCompatActivity
 
             @Override
             public void onFailure(Call<List<Player>> call, Throwable t) {
-                Toast.makeText(UpdatePlayerProfile.this, "Failed to load profile: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                UIUtils.setLoading(UpdatePlayerProfile.this, false);
+                UIUtils.networkError(UpdatePlayerProfile.this, () -> loadPlayerProfile(adapter));
             }
         });
     }
@@ -99,32 +102,32 @@ public class UpdatePlayerProfile extends AppCompatActivity
         String strHeight = edtHeight.getText().toString().trim();
 
         if (firstname.isEmpty()) {
-            Toast.makeText(this, "First Name is required", Toast.LENGTH_SHORT).show();
+            UIUtils.fieldError(edtFirstName, "Required");
             return;
         }
 
         if (surname.isEmpty()) {
-            Toast.makeText(this, "Surname is required", Toast.LENGTH_SHORT).show();
+            UIUtils.fieldError(edtSurname, "Required");
             return;
         }
 
         if (strPlayerNumber.isEmpty()) {
-            Toast.makeText(this, "Player Number is required", Toast.LENGTH_SHORT).show();
+            UIUtils.fieldError(edtPlayerNumber, "Required");
             return;
         }
 
         if (position.isEmpty()) {
-            Toast.makeText(this, "Please select a Position", Toast.LENGTH_SHORT).show();
+            UIUtils.fieldError(actvPosition, "Choose a position");
             return;
         }
 
         if (dob.isEmpty()) {
-            Toast.makeText(this, "Date of Birth is required", Toast.LENGTH_SHORT).show();
+            UIUtils.fieldError(edtDOB, "Required");
             return;
         }
 
         if (strHeight.isEmpty()) {
-            Toast.makeText(this, "Height is required", Toast.LENGTH_SHORT).show();
+            UIUtils.fieldError(edtHeight, "Required");
             return;
         }
 
@@ -133,14 +136,14 @@ public class UpdatePlayerProfile extends AppCompatActivity
         try {
             playerNumber = Integer.parseInt(strPlayerNumber);
         } catch (NumberFormatException e) {
-            Toast.makeText(this, "Please enter a valid Player Number", Toast.LENGTH_SHORT).show();
+            UIUtils.fieldError(edtPlayerNumber, "Enter a whole number");
             return;
         }
 
         try {
             height = Integer.parseInt(strHeight);
         } catch (NumberFormatException e) {
-            Toast.makeText(this, "Please enter a valid Height", Toast.LENGTH_SHORT).show();
+            UIUtils.fieldError(edtHeight, "Enter a whole number in cm");
             return;
         }
 
@@ -155,13 +158,13 @@ public class UpdatePlayerProfile extends AppCompatActivity
                     startActivity(new Intent(UpdatePlayerProfile.this, Player_Profiles.class));
                     finish();
                 } else {
-                    Toast.makeText(UpdatePlayerProfile.this, "Update failed.", Toast.LENGTH_SHORT).show();
+                    UIUtils.showMessage(UpdatePlayerProfile.this, "Update failed.");
                 }
             }
 
             @Override
             public void onFailure(Call<List<Player>> call, Throwable t) {
-                Toast.makeText(UpdatePlayerProfile.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                UIUtils.networkError(UpdatePlayerProfile.this, null);
             }
         });
     }

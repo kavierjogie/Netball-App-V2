@@ -7,11 +7,12 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import com.example.netballapp.Model.Coach;
 import com.example.netballapp.R;
+import com.example.netballapp.Model.UIUtils;
 import com.example.netballapp.api.RetrofitClient;
 import com.example.netballapp.api.SuperbaseAPI;
 
@@ -39,23 +40,29 @@ public class LoginActivity extends AppCompatActivity {
         String username = edtUsername.getText().toString().trim();
         String password = edtPassword.getText().toString().trim();
 
-        if (username.isEmpty() || password.isEmpty()) {
-            Toast.makeText(this, "Please enter both username and password", Toast.LENGTH_SHORT).show();
+        if (username.isEmpty()) { UIUtils.fieldError(edtUsername, "Enter your username"); return; }
+        if (password.isEmpty()) { UIUtils.fieldError(edtPassword, "Enter your password"); return; }
+
+        if (!isNetworkAvailable()) {
+            UIUtils.networkError(this, () -> onLoginClicked(view));
             return;
         }
 
-        if (!isNetworkAvailable()) {
-            Toast.makeText(this, "No internet connection", Toast.LENGTH_SHORT).show();
-            return;
-        }
+        // Busy state: block double-submits and show that something is happening.
+        Button loginButton = (Button) view;
+        CharSequence label = loginButton.getText();
+        loginButton.setEnabled(false);
+        loginButton.setText("Signing in…");
+        Runnable reset = () -> { loginButton.setEnabled(true); loginButton.setText(label); };
 
         Call<List<Coach>> call = api.loginCoach("eq." + username, "eq." + password);
 
         call.enqueue(new Callback<List<Coach>>() {
             @Override
             public void onResponse(Call<List<Coach>> call, Response<List<Coach>> response) {
+                reset.run();
                 if (!response.isSuccessful()) {
-                    Toast.makeText(LoginActivity.this, "Server error: " + response.code(), Toast.LENGTH_SHORT).show();
+                    UIUtils.showMessage(LoginActivity.this, "Couldn't sign in (error " + response.code() + ")");
                     return;
                 }
 
@@ -71,13 +78,14 @@ public class LoginActivity extends AppCompatActivity {
                     startActivity(new Intent(LoginActivity.this, DashboardActivity.class));
                     finish();
                 } else {
-                    Toast.makeText(LoginActivity.this, "Invalid username or password", Toast.LENGTH_SHORT).show();
+                    UIUtils.fieldError(edtPassword, "Incorrect username or password");
                 }
             }
 
             @Override
             public void onFailure(Call<List<Coach>> call, Throwable t) {
-                Toast.makeText(LoginActivity.this, "Network failure: " + t.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                reset.run();
+                UIUtils.networkError(LoginActivity.this, () -> onLoginClicked(view));
             }
         });
     }

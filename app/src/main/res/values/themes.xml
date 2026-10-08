@@ -1,5 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Base.Theme.NetBallApp" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.NetBallApp" parent="Theme.Material3.Light.NoActionBar">
     </style>
     <style name="Theme.NetBallApp" parent="Base.Theme.NetBallApp" />
 </resources>
