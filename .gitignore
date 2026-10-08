@@ -18,3 +18,6 @@ local.properties
 .env
 .env.local
 .env.*.local
+
+# Brag video output (local only)
+brag-output*/
